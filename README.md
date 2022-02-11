@@ -22,7 +22,7 @@ Although it is totally possible to use only one grain size and species, the main
 ## Set up a model
 
 ### IMPORT PACKAGE
-Open any notebook or script in the working directory.
+- Open any notebook or script in the working directory.
 
 ```
 import chemdiskpy.modeling as modeling
@@ -50,14 +50,14 @@ m.grid.set_mcmonowavelength_grid(1e-1, 2e3, 100, log=True) # in microns. This gr
 ```
 
 ### RADMC GRID
-Typically, the grid is spherical for model with a central object like disks:
+- Typically, the grid is spherical for model with a central object like disks:
 
 ```
 m.set_spherical_grid(rin, rout, nr, ntheta, nphi, log=True)
 ```
 
 ### STAR
-This is a simple black-body spectrum. UV from accreting material will be added in future versions. The star is located at coordinates (0,0,0)
+- This is a simple black-body spectrum. UV from accreting material will be added in future versions. The star is located at coordinates (0,0,0)
 ```
 m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)
 ```
@@ -69,14 +69,16 @@ m.add_isrf(cut=2.e-1, d78=True, vdb82=True)
 ```
 
 ### DUST DISK STRUCTURE
+- Start with a dust populations. This library is originaly made for multi-grain chemistry code but this works fine with a single grain population.
+- Set **nb_sizes=1** if you want to use one size. In that case amin and amax will not be read. **rsingle** is the grain size.
 ```
-Start with a dust populations. This library is originaly made for multi-grain chemistry code but this works fine with a single grain population.
-Choose ```nb_sizes=1``` if you want to use one size. In that case amin and amax will not be read. ```rsingle``` is the grain size.
 d = dust.DustDistrib(rsingle=0.1, amin=5.000e-03, amax=1.000e+03, nb_sizes=2, rho_m=3.) #microns
 sizes = d.sizes() # get the size 
 mass = d.grainmass() # get the grain mass for each grain size. 
+```
 
-Then, create a dust disk structure with spherical coordinates for RADMC3D with the values previously set. 
+- Then, create a dust disk structure with spherical coordinates for RADMC3D with the values previously set. 
+```
 m.add_disk(dust=d, rin=rin, rout=rout, dtogas=dtogas, dust_mass=8e-5, settling=True, coordsystem='spherical')
 ```
 

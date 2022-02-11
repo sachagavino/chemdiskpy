@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: chemdiskpy
+Version: 0.1.1
+Summary: Thermal and chemical modeling of multiple grain-sized protoplanetary disks
+Home-page: UNKNOWN
+Author: Patrick Sheehan, Sacha Gavino
+Author-email: sacha.gavino@nbi.ku.dk
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# chemdiskpy: Couple chemistry modeling with thermal modeling of protoplanetary disks with multiple grain sizes
+
+
+This code is dedicated to help users create dust continuum radiative transfer simulations with RADMC3D and couple the output results to create input parameters for the gas-grain code NAUTILUS for protoplanetary disk models.
+Although it is totally possible to use only one grain size and species, the main purpose of the package is to use multiple grain sizes, both for solving thermal and chemical problems.
+
+
+## Installation
+
+- last release from test [https://test.pypi.org/](https://test.pypi.org/):
+
+        pip install -i https://test.pypi.org/simple/ chemdiskpy
+
+

@@ -16,7 +16,7 @@ Although it is totally possible to use only one grain size and species, the main
 
 ### Set up a directory (this step is temporary and will not be required in the next version)
 - Create a working folder where you want to create a model and go to this folder.
-- TEMPORARY: Create a folder named **chemistry/** and another **thermal/**. This step is temporary.
+- TEMPORARY: Create manually a folder named **chemistry/** and another **thermal/**. This step is temporary.
 - **chemistry/** is where the NAUTILUS is stored.
 - **thermal/** is where the thermal model is stored.
 - in thermal folder, add an opacity table in the format of radmc3d using the script provided. and go back to the working directory.

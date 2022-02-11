@@ -32,7 +32,7 @@ import chemdiskpy.dust as dust
 import chemdiskpy.plotting.plot as plot
 ```
 
-### CREATE A OBJECT:
+### CREATE AN OBJECT:
 ```
 m = modeling.YSOModel() 
 ```
@@ -51,8 +51,8 @@ m.grid.set_wavelength_grid(1e-1, 2e3, 100, log=True) # in microns.
 m.grid.set_mcmonowavelength_grid(1e-1, 2e3, 100, log=True) # in microns. This grid will be used for the computing of the local radiation field.
 ```
 
-### RADMC GRID
-- Typically, the grid is spherical for model with a central object like disks:
+### RADMC3D GRID
+- Typically, the grid is spherical for model with a central object like disks (but can be cartesian if needed):
 
 ```
 m.set_spherical_grid(rin, rout, nr, ntheta, nphi, log=True)
@@ -64,15 +64,15 @@ m.set_spherical_grid(rin, rout, nr, ntheta, nphi, log=True)
 m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)
 ```
 
-### INTERSTELLAR RADIATION FIELD
+### INTERSTELLAR RADIATION FIELD (optional)
 - Draine 1978 between 91.2 and 200 nm, and with the extension of van Dishoeck & Black 1982 at longer wavelengths. Change 'cut' if you want another value.
 ```
 m.add_isrf(cut=2.e-1, d78=True, vdb82=True)
 ```
 
 ### DUST DISK STRUCTURE
-- Start with a dust populations. This library is originaly made for multi-grain chemistry code but this works fine with a single grain population.
-- Set **nb_sizes=1** if you want to use one size. In that case amin and amax will not be read. **rsingle** is the grain size.
+- Start by creating a dust population. This library is originally made for multi-grain chemical code but this works fine with a single grain population.
+- Set **nb_sizes=1** if you want to use one size. In that case, **amin** and **amax** will not be read and **rsingle** is the grain size.
 ```
 d = dust.DustDistrib(rsingle=0.1, amin=5.000e-03, amax=1.000e+03, nb_sizes=2, rho_m=3.) #microns
 sizes = d.sizes() # get the size 
@@ -98,7 +98,7 @@ m.run_thermal(nphot = 5e5, \
               tgas_eq_tdust = 0)
 ```
 
-### PLOT THE RESULTS
+### PLOT THE RESULTS (optional)
 - Dust temperature:
 ```
 plot.temperature2D() 
@@ -114,18 +114,12 @@ plot.density2D(mass) # Use the mass previously set up.
 plot.midplane_temp() 
 ```
 
-- Dust opacity (absoprtion, scattering, angles)
+- Dust opacity (absorption, scattering, angles)
 ```
 plot.albedo() 
 ```
 
-### RUN LOCAL RADIATION
-```
-nphot_mono = 1e7 # choose number of photons
-m.run_localfield(nphot_mono = nphot_mono)
-```
-
-### RUN LOCAL RADIATION
+### RUN LOCAL RADIATION (optional)
 ```
 nphot_mono = 1e7 # choose number of photons
 m.run_localfield(nphot_mono = nphot_mono)
@@ -150,7 +144,7 @@ m.add_nautilusdisk(dust=d, dtogas=dtogas, settling=True)
 ```
 
 ### CREATE NAUTILUS DISK MODEL
-- Create a ready-to-use nautilus disk model in **chemistry/**.
+- Create a ready-to-use nautilus disk model in **chemistry/**. The dust temperature (and local flux if needed) is extraced from the RADMC3D results.
 ```
 m.write_nautilus(uv_ref=3400, dtogas=dtogas, rgrain=d.rsingle, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.900E-10)
 ```

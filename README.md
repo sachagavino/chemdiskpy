@@ -16,8 +16,10 @@ Although it is totally possible to use only one grain size and species, the main
 
 ### Set up a directory (this step is temporary and will not be required in the next version)
 - Create a working folder where you want to create a model and go to this folder.
-- TEMPORARY: Create a folder named 'chemistry' and another 'thermal'. This step is temporary.
-- in thermal folder, add a opacity table in the format of radmc3d using the script. and go back to the working directory.
+- TEMPORARY: Create a folder named **chemistry/** and another **thermal/**. This step is temporary.
+- **chemistry/** is where the NAUTILUS is stored.
+- **thermal/** is where the thermal model is stored.
+- in thermal folder, add an opacity table in the format of radmc3d using the script provided. and go back to the working directory.
 
 ## Set up a model
 
@@ -30,7 +32,7 @@ import chemdiskpy.dust as dust
 import chemdiskpy.plotting.plot as plot
 ```
 
-### Create a object:
+### CREATE A OBJECT:
 ```
 m = modeling.YSOModel() 
 ```
@@ -63,7 +65,7 @@ m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)
 ```
 
 ### INTERSTELLAR RADIATION FIELD
-Draine 1978 between 91.2 and 200 nm, and with the extension of van Dishoeck & Black 1982 at longer wavelengths. Change 'cut' if you want another value.
+- Draine 1978 between 91.2 and 200 nm, and with the extension of van Dishoeck & Black 1982 at longer wavelengths. Change 'cut' if you want another value.
 ```
 m.add_isrf(cut=2.e-1, d78=True, vdb82=True)
 ```
@@ -82,3 +84,77 @@ mass = d.grainmass() # get the grain mass for each grain size.
 m.add_disk(dust=d, rin=rin, rout=rout, dtogas=dtogas, dust_mass=8e-5, settling=True, coordsystem='spherical')
 ```
 
+### RUN THERMAL
+- The main parameters are the number of photons **nphot** and **nphot_scat**. 
+```
+m.run_thermal(nphot = 5e5, \
+              nphot_scat = 5e5, \
+              nphot_spec = 1e5, \
+              itempdecoup = 1, \
+              istar_sphere = 1, \
+              modified_random_walk = 1, \
+              rto_style = 1, \
+              scattering_mode_max = 1, \
+              tgas_eq_tdust = 0)
+```
+
+### PLOT THE RESULTS
+- Dust temperature:
+```
+plot.temperature2D() 
+```
+
+- Dust density:
+```
+plot.density2D(mass) # Use the mass previously set up. 
+```
+
+- Radial dust temperature profile (in the midplane):
+```
+plot.midplane_temp() 
+```
+
+- Dust opacity (absoprtion, scattering, angles)
+```
+plot.albedo() 
+```
+
+### RUN LOCAL RADIATION
+```
+nphot_mono = 1e7 # choose number of photons
+m.run_localfield(nphot_mono = nphot_mono)
+```
+
+### RUN LOCAL RADIATION
+```
+nphot_mono = 1e7 # choose number of photons
+m.run_localfield(nphot_mono = nphot_mono)
+```
+
+### NAUTILUS GRID
+- radii in au where you want to compute chemistry:
+```
+rchem = [10, 20, 30 , 40, 50, 60, 80, 100] 
+```
+- create NAUTILUS grid. 
+- The value **max_h** is the maximum scale height (z/H) where chemistry will be computed. The grid is empty above. 
+- The value **nz_chem** is the number of vertical points where chemistry is computed for each radius.
+```  
+m.grid.set_nautilus_grid(rchem, max_h=4, nz_chem=64)
+```
+
+### CREATE NAUTILUS DISK STRUCTURE
+- Use the same dust model as for RADMC3D.
+```
+m.add_nautilusdisk(dust=d, dtogas=dtogas, settling=True)
+```
+
+### CREATE NAUTILUS DISK MODEL
+- Create a ready-to-use nautilus disk model in **chemistry/**.
+```
+m.write_nautilus(uv_ref=3400, dtogas=dtogas, rgrain=d.rsingle, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.900E-10)
+```
+
+### RUN NAUTILUS DISK MODEL
+- Next step is to run as you would usually do the nautilus model in **chemistry/**.
+- This will be added in a future update.

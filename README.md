@@ -146,8 +146,10 @@ m.add_nautilusdisk(dust=d, dtogas=dtogas, settling=True)
 ### CREATE NAUTILUS DISK MODEL
 - Create a ready-to-use nautilus disk model in **chemistry/**. The dust temperature (and local flux if needed) is extraced from the RADMC3D results.
 ```
-m.write_nautilus(uv_ref=3400, dtogas=dtogas, rgrain=d.rsingle, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.900E-10)
+m.write_nautilus(uv_ref=3400, dtogas=dtogas, rgrain=d.rsingle, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.900E-10, coupling_av=True, coupling_temp=True)
 ```
+
+- WARNING: the parameter **coupling_av=True** works only if the local field is computed prior to this.
 
 ### RUN NAUTILUS DISK MODEL
 - Next step is to run as you would usually do the nautilus model in **chemistry/**.

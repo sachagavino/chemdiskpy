@@ -9,7 +9,7 @@ Although it is totally possible to use only one grain size and species, the main
 
 - last release from test [https://test.pypi.org/](https://test.pypi.org/):
 
-        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.3.0
+        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.3.1
 
 
 ## Quick start
@@ -22,7 +22,8 @@ Although it is totally possible to use only one grain size and species, the main
 3. In thermal folder, add an opacity table in the format of radmc3d using the script provided. and go back to the working directory.
 
 ## Set up a model
-- All parameters can be written in the file parameters.py in the working directory. See folder example_simulation.
+- All parameters can be written in the file parameters.py in the working directory. See folder **example_simulation/**. 
+- If the user provides all or a few parameters when calling the functions (e.g. if the user calls: **m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)**), then the corresponding values in **parameters.py** are 'bypassed' and not read.
 
 ### IMPORT PACKAGE
 - Open any notebook or script in the working directory.

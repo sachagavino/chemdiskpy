@@ -22,6 +22,7 @@ Although it is totally possible to use only one grain size and species, the main
 3. In thermal folder, add an opacity table in the format of radmc3d using the script provided. and go back to the working directory.
 
 ## Set up a model
+- All parameters can be written in the file parameters.py in the working directory. See folder example_simulation.
 
 ### IMPORT PACKAGE
 - Open any notebook or script in the working directory.
@@ -116,7 +117,7 @@ plot.midplane_temp()
 
 - Dust opacity (absorption, scattering, angles)
 ```
-plot.albedo() 
+plot.opacity() 
 ```
 
 ### RUN LOCAL RADIATION (optional)
@@ -146,10 +147,17 @@ m.add_nautilusdisk(dust=d, dtogas=dtogas, settling=True)
 ### CREATE NAUTILUS DISK MODEL
 - Create a ready-to-use nautilus disk model in **chemistry/**. The dust temperature (and local flux if needed) is extraced from the RADMC3D results.
 ```
-m.write_nautilus(uv_ref=3400, dtogas=dtogas, rgrain=d.rsingle, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.900E-10, coupling_av=True, coupling_temp=True)
+m.write_nautilus(sizes=sizes, uv_ref=3400, dtogas=dtogas, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.300E-17, network=False, coupling_av=False)
 ```
 
+- **network=False** implies that the user has to add his/her own chemical network. If True, the kida.14 network will be added in the user's model.
 - WARNING: the parameter **coupling_av=True** works only if the local field is computed prior to this.
+
+### PLOT THE RESULTS (optional)
+- Vertical dust temperature:
+```
+plot.vertical_temp(r=100) 
+```
 
 ### RUN NAUTILUS DISK MODEL
 - Next step is to run as you would usually do the nautilus model in **chemistry/**.

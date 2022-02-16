@@ -99,9 +99,9 @@ class Model:
         radmc3d.write.dustopac(dustopac)
 
     # WRITE NAUTILUS INPUT FILES
-    def write_nautilus(self, sizes=[0.1], uv_ref=3400, nH_to_AV_conversion=1.600e+21, rgrain=0.1, dtogas=1e-2, ref_radius=100,\
+    def write_nautilus(self, sizes=np.array([[0.1]]), uv_ref=3400, nH_to_AV_conversion=1.600e+21, rgrain=0.1, dtogas=1e-2, ref_radius=100,\
                        stop_time=3e6, static=True, param=True, element=True, abundances=True, \
-                       activ_energies=True, surfaces=True,  network=True, grain_sizes=True,\
+                       activ_energies=True, surfaces=True, network=True, grain_sizes=True,\
                        coupling_temp=True, coupling_av=True, **keywords):
 
         chemfold = 'chemistry'
@@ -131,20 +131,10 @@ class Model:
             except IOError:
                 print('There is no folder called chemistry.')
                 sys.exit(1)
+
             uvflux = nautilus.write.uv_factor(uv_ref, ref_radius, r, self.grid.hg_chem[0][idx]/autocm)
             avnh_fact = nautilus.write.avnh_factor(nH_to_AV_conversion, dtogas, rgrain, self.grid.zchem)
 
-
-            if network == True:
-                nautilus.write.network(path)
-            if element == True:
-                nautilus.write.elements(path)
-            if abundances == True:
-                nautilus.write.abundances(path)
-            if activ_energies == True:
-                nautilus.write.activ_energies(path)
-            if surfaces == True:
-                nautilus.write.surfaces(path)
 
             if nbspecies == 1:
                 if param == True:
@@ -176,4 +166,15 @@ class Model:
                                     avnh_fact)
                 if grain_sizes == True:
                     nautilus.write.grain_sizes(path, sizes, self.grid.gasdensity_chem[0][idx,:], self.grid.dustdensity_chem[0][:,idx,:], T_dust[:,idx,:])
+
+            if network == True:
+                nautilus.write.network(path)
+            if element == True:
+                nautilus.write.elements(path)
+            if abundances == True:
+                nautilus.write.abundances(path)
+            if activ_energies == True:
+                nautilus.write.activ_energies(path)
+            if surfaces == True:
+                nautilus.write.surfaces(path)
 

@@ -1,5 +1,6 @@
 import numpy as np
 from shutil import copy
+import os
 
 def parameters(path, resolution, phase=1, \
                preli=0, \
@@ -374,10 +375,10 @@ def static(path, z, hg, gas_density, T_gas, av_z, T_dust, dust_density, r_grain,
     np.savetxt(path+'1D_static.dat', static_array, fmt='%.5E', delimiter='   ', newline='\n', header=header_static , comments='! ', encoding=None)
 
 def network(path):
-    copy("chemdiskpy/nautilus/network/gas_species.in", path + 'gas_species.in')
-    copy("chemdiskpy/nautilus/network/grain_species.in", path + 'grain_species.in')
-    copy("chemdiskpy/nautilus/network/gas_reactions.in", path + 'gas_reactions.in')
-    copy("chemdiskpy/nautilus/network/grain_reactions.in", path + 'grain_reactions.in')
+    copy("chemdiskpy/nautilus/network/gas_species.in", path + "gas_species.in")
+    copy("chemdiskpy/nautilus/network/grain_species.in", path + "grain_species.in")
+    copy("chemdiskpy/nautilus/network/gas_reactions.in", path + "gas_reactions.in")
+    copy("chemdiskpy/nautilus/network/grain_reactions.in", path + "grain_reactions.in")
 
 def elements(path):
     f = open(path + 'element.in',"w")

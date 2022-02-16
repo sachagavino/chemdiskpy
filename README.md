@@ -9,7 +9,7 @@ Although it is totally possible to use only one grain size and species, the main
 
 - last release from test [https://test.pypi.org/](https://test.pypi.org/):
 
-        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.1.0
+        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.3.0
 
 
 ## Quick start

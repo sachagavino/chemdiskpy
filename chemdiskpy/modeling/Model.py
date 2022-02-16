@@ -25,7 +25,7 @@ class Model:
         thermpath='thermal/'
 
         self.write_radmc3d(nphot_therm=nphot, **keywords)
-        # ------- >  radmc3d.run.thermal(verbose=verbose, timelimit=timelimit, nice=nice)
+        radmc3d.run.thermal(verbose=verbose, timelimit=timelimit, nice=nice)
 
         self.grid.temperature = radmc3d.read.dust_temperature(thermpath) # will be updated when multiple structures
 
@@ -167,8 +167,8 @@ class Model:
                 if grain_sizes == True:
                     nautilus.write.grain_sizes(path, sizes, self.grid.gasdensity_chem[0][idx,:], self.grid.dustdensity_chem[0][:,idx,:], T_dust[:,idx,:])
 
-            if network == True:
-                nautilus.write.network(path)
+            # if network == True:
+            #     nautilus.write.network(path)
             if element == True:
                 nautilus.write.elements(path)
             if abundances == True:

@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="chemdiskpy",
-    version="0.3.0",
+    version="0.3.1",
     author="Patrick Sheehan, Sacha Gavino",
     author_email="sacha.gavino@nbi.ku.dk",
     description="Thermal and chemical modeling of multiple grain-sized protoplanetary disks",

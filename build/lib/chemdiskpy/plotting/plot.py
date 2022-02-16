@@ -158,8 +158,52 @@ def midplane_temp():
     ax.tick_params(labelsize=18)
     plt.show()
 
+def vertical_temp(r=100):
+    grid = pd.read_table('thermal/amr_grid.inp', engine='python', skiprows=5)
+    head = grid.columns
+    nr = int(grid.columns[0].split("  ")[0])
+    nt = int(grid.columns[0].split("  ")[1])
+    grid = grid[head[0]].values
+    temp = pd.read_table('thermal/dust_temperature.dat', engine='python', header=None, skiprows=3)
+    temp = temp[0].values
+    nbspecies = int(len(temp)/(nr*nt))
 
-def albedo():
+    if nbspecies == 1:
+        temp = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!')
+        #--PLOT FIGURE--
+        fig = plt.figure(figsize=(9.6, 8.2))
+        ax = fig.add_subplot(111)
+        #-----profiles
+        ax.plot(temp[5], temp[0], linewidth=2, linestyle='-', label='{} AU'.format(r))
+        # ax.set_ylim(0,60)
+        # ax.set_xlim(1,350)
+        ax.set_xlabel(r'z [au]', fontsize = 20)
+        ax.set_ylabel(r'T$_\mathrm{d}$ [K]', fontsize = 20)
+        ax.legend(fontsize=15)
+        ax.tick_params(labelsize=18)
+        plt.show()
+    elif nbspecies > 1:
+        static = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!')
+        temp = pd.read_table('chemistry/'+str(r)+'AU/temperatures.dat', sep="\s+", engine='python', header=None)
+        #--PLOT FIGURE--
+        fig = plt.figure(figsize=(9.6, 8.2))
+        ax = fig.add_subplot(111)
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax.text(0.91, 0.05, '{} AU'.format(r), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
+        #-----profiles
+        for ai in range(nbspecies):
+            ax.plot(temp[ai], static[0], linewidth=2, linestyle='-', label='bin: {}'.format(ai+1))
+        # ax.set_ylim(0,60)
+        # ax.set_xlim(1,350)
+        ax.set_xlabel(r'z [au]', fontsize = 20)
+        ax.set_ylabel(r'T$_\mathrm{d}$ [K]', fontsize = 20)
+        ax.legend(fontsize=15)
+        ax.tick_params(labelsize=18)
+        plt.show()
+
+
+
+def opacity():
     opaclist = sorted(glob.glob('thermal/dustkap*'))
 
     #---absorption

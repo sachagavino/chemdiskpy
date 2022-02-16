@@ -150,6 +150,206 @@ def parameters(path, resolution, phase=1, \
 
     f.close()
 
+
+def parameters_multi(path, resolution, phase=1, \
+               preli=0, \
+               t=0, \
+               grain_temp='fixed_to_dust_size', \
+               is_dust_1D=0, \
+               photo_disk=0, \
+               is_grain_reactions=1, \
+               is_h2_adhoc_form=0, \
+               is_h2_formation_rate=1, \
+               is_absorption_h2=1, \
+               is_absorption_co=2, \
+               is_absorption_n2=1, \
+               is_photodesorb=0, \
+               is_crid=0, \
+               is_er_cir=0, \
+               tunneling=0, \
+               modify_rate_flag=0, \
+               conservation_type=0, \
+               distrib = 1, \
+               nb_active_lay = 2.000E+00, \
+               structure='1D_no_diff', \
+               nb_grains = 16, \
+               initial_gas_density=2.000E+04, \
+               initial_gas_temperature=1.000E+01, \
+               initial_visual_extinction=1.500E+01, \
+               cr_ionisation_rate=1.300E-17, \
+               x_ionisation_rate=0., \
+               uv_flux=1.000E+03, \
+               initial_dust_temperature=1.000E+01, \
+               initial_dtg_mass_ratio=1.000E-02, \
+               sticking_coeff_neutral=1.000E+00, \
+               sticking_coeff_positive=0.000E+00, \
+               sticking_coeff_negative=0.000E+00, \
+               grain_density=3.000E+00, \
+               grain_radius=1.000E-05, \
+               diff_barrier_thick=1.000E-08, \
+               surface_site_density=8.000E+14, \
+               diff_binding_ratio_surf=4.000E-01, \
+               diff_binding_ratio_mant=8.000E-01, \
+               chemical_barrier_thickness=1.000E-08, \
+               cr_peak_grain_temp=7.000E+01, \
+               cr_peak_duration=1.000E-05, \
+               Fe_ionisation_rate=3.000E-14, \
+               vib_to_dissip_freq_ratio=1.000E-02 , \
+               ED_H2=2.300E+01, \
+               start_time=1.000E+00, \
+               stop_time=1.000E+06, \
+               nb_outputs = 64, \
+               output_type = 'log', \
+               relative_tolerance=1.000E-04, \
+               minimum_initial_abundance=1.000E-40):
+
+    f = open(path + 'parameters.in',"w")
+
+    f.write("!# ------------------------------------------------\n")
+    f.write("!# Parameter file for various properties of the disk.\n")
+    f.write("!# ------------------------------------------------\n")
+    f.write("!# blanck line or with spaces will be skipped.\n")
+    f.write("!# In fact, the only lines that matter are non commented lines with a\n")
+    f.write("!# '=' character to distinguish the identificator and the value(s)\n")
+    f.write("!# (each value must be separated with at least one space.\n")
+    f.write("!# Line must not be longer than 80 character, but comments can be far\n")
+    f.write("!# bigger than that, even on line with a parameter to read.\n")
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!*   Switch 2/3 phase model  *\n")
+    f.write("!*****************************\n")
+    f.write("\n")
+    f.write("is_3_phase = {0:d} ! 0: 2 phase, 1: 3 phase\n".format(phase))
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!*          Switches         *\n")
+    f.write("!*****************************\n")
+    f.write("\n")
+    f.write("preliminary_test = {0:d} ! Will or will not do comprehensive tests before the simulation. Switch it off when lauching thousands or simulations\n".format(preli))
+    f.write("is_structure_evolution = {0:d} ! If 1, physical structure properties evolve with time, values come from structure_evolution.dat file that must exists\n".format(t))
+    f.write("grain_temperature_type = {0:s} ! fixed, fixed_to_dust_size, gas, table_evolv, table_1D or computed\n".format(grain_temp))
+    f.write("! fixed: Tgrain = initial_dust_temperature. All dust grains have same temperature;\n")
+    f.write("! fixed_to_dust_size = each of dust grains have fixed temperature which may be same or differnet for each dust grain; \n")
+    f.write("! gas: Tgrain = Tgas ; \n")
+    f.write("! table_evolv: Tgrain is interpolated from structure_evolution.dat data file (5th optional column) ;\n")
+    f.write("! table_1D: Tgrain is read in the 1D_static. dat file (5th column) ;\n")
+    f.write("! computed: calculated from uv_flux and visual extinction by radiative equilibrium\n")
+    f.write("is_dust_1D = {0:d} ! Reading the grain abundance and the NH/AV factor in the 1D_static.dat file (mostly for disks)\n".format(is_dust_1D))
+    f.write("photo_disk = {0:d} ! Computation of photodissociation rates for protoplanetary disks.\n".format(photo_disk))
+    f.write("is_grain_reactions = {0:d} ! Accretion, grain surface reactions\n".format(is_grain_reactions))
+    f.write("is_h2_adhoc_form = {0:d} ! Ad hoc formation of H2 on grain surfaces (1=activated)\n".format(is_h2_adhoc_form))
+    f.write("is_h2_formation_rate = {0:d} ! h2 formation rates on surfaces from Bron et al: (2014)\n".format(is_h2_formation_rate))
+    f.write("is_absorption_h2 = {0:d} ! H2 self-shielding from Lee & Herbst (1996) (1=activated)\n".format(is_absorption_h2))
+    f.write("is_absorption_co = {0:d} ! CO self-shielding. (1: Lee & Herbst (1996), 2: Visser et al. (2009)\n".format(is_absorption_co))
+    f.write("is_absorption_n2 = {0:d} ! N2 self-shielding from Li et al. (2013) (1=activated)\n".format(is_absorption_n2))
+    f.write("is_photodesorb = {0:d} ! Switch to turn on the photodesorption of ices (default yield is 1e-4)\n".format(is_photodesorb))
+    f.write("is_crid = {0:d} ! Switch to turn on the CRID (cosmic rays induced diffusion) mechanism\n".format(is_crid))
+    f.write("is_er_cir = {0:d} ! Switch to turn on Eley-Rideal and Complex Induced Reaction mechanisms (default=0: desactivated)\n".format(is_er_cir))
+    f.write("grain_tunneling_diffusion = {0:d} ! 0=thermal; For H,H2: 1=QM1; 2=QM2; 3=choose fastest; 4= QM2 for O ; 5= QM2 for all\n".format(tunneling))
+    f.write("modify_rate_flag = {0:d} ! 1=modify H; 2=modify H,H2, 3=modify all, -1=H+H only\n".format(modify_rate_flag))
+    f.write("conservation_type = {0:d} ! 0=only e- conserved; 1=elem #1 conserved, 2=elem #1 & #2, etc\n".format(conservation_type))
+    f.write("is_grain_MRN = {0:d} ! 1 = MRN distribution; 0 = WD distribution. (for specific case of WD see subroutine GRAIN_DIST(INDEX,DTYPE,A,DNDA))\n".format(distrib))
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!* Number of active layers   *\n")
+    f.write("!*****************************\n")
+    f.write("\n")
+    f.write("nb_active_lay =  {0:.3E} ! Number of active layers\n".format(nb_active_lay))
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!*      1D and diffusion     *\n")
+    f.write("!*****************************\n")
+    f.write("!(diffusion is for species, not the structure)\n")
+    f.write("\n")
+    f.write("structure_type = {0:s} ! 0D, 1D_diff, 1D_no_diff\n".format(structure))
+    f.write("spatial_resolution = {0:d} ! If 1, we are in 0D, else, we are in 1D, with diffusion between gas boxes. Number of lines in 1D.\n".format(resolution))
+    f.write("\n")
+    f.write("!************************************\n")
+    f.write("!*      1D and number of grains     *\n")
+    f.write("!************************************\n")
+    f.write("\n")
+    f.write("nb_grains_1D = {0:d}  ! used only in multi grain 1D model. Give number of grains in 1D model. if it is 1 then 1D_grain_sizes.in is not read\n".format(nb_grains))
+    f.write("                  ! and grain parameters are read from 1D_static.dat file.\n")
+    f.write("                  !in single grain and 0D model it is not needed as number of grains is always read from grain_sizes.in file\n")
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!*    Gas phase parameters   *\n")
+    f.write("!*****************************\n")
+    f.write("\n")
+    f.write("initial_gas_density =  {0:.3E} ! initial gas density [part/cm-3]\n".format(initial_gas_density))
+    f.write("initial_gas_temperature =  {0:.3E} ! initial gas temperature [K]\n".format(initial_gas_temperature))
+    f.write("initial_visual_extinction =  {0:.3E} ! initial visual extinction\n".format(initial_visual_extinction))
+    f.write("cr_ionisation_rate =  {0:.3E} ! cosmic ray ionisation rate [s-1] (standard=1.3e-17)\n".format(cr_ionisation_rate))
+    f.write("x_ionisation_rate =  {0:.3E} ! Ionisation rate due to X-rays [s-1]\n".format(x_ionisation_rate))
+    f.write("uv_flux =  {0:.3E} ! Scale factor for the UV flux, in unit of the reference flux (1.=nominal)\n".format(uv_flux))
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!*      Grain parameters     *\n")
+    f.write("!*****************************\n")
+    f.write("\n")
+    f.write("initial_dust_temperature =  {0:.3E} ! initial dust temperature [K] when grain_temperature_type=fixed\n".format(initial_dust_temperature))
+    f.write("initial_dtg_mass_ratio =  {0:.3E} ! dust-to-gas ratio by mass\n".format(initial_dtg_mass_ratio))
+    f.write("sticking_coeff_neutral =  {0:.3E} ! sticking coeff for neutral species\n".format(sticking_coeff_neutral))
+    f.write("sticking_coeff_positive =  {0:.3E} ! sticking coeff for positive species\n".format(sticking_coeff_positive))
+    f.write("sticking_coeff_negative =  {0:.3E} ! sticking coeff for negative species\n".format(sticking_coeff_negative))
+    f.write("grain_density =  {0:.3E} ! mass density of grain material\n".format(grain_density))
+    f.write("grain_radius =  {0:.3E} ! grain radius [cm]\n".format(grain_radius))
+    f.write("diffusion_barrier_thickness =  {0:.3E} ! Barrier thickness [cm]\n".format(diff_barrier_thick))
+    f.write("surface_site_density =  {0:.3E} ! site density on one grain [cm-2]\n".format(surface_site_density))
+    f.write("diff_binding_ratio_surf =  {0:.3E} ! Ratio used to compute the DIFFUSION_BARRIER from the BINDING_ENERGY if not known (surface species)\n".format(diff_binding_ratio_surf))
+    f.write("diff_binding_ratio_mant =  {0:.3E} ! Ratio used to compute the DIFFUSION_BARRIER from the BINDING_ENERGY if not known  (mantle species)\n".format(diff_binding_ratio_mant))
+    f.write("chemical_barrier_thickness =  {0:.3E} ! grain reaction activation energy barrier width. [cm]\n".format(chemical_barrier_thickness))
+    f.write("cr_peak_grain_temp =  {0:.3E} ! peak grain temperature [K] (CR heating)\n".format(cr_peak_grain_temp))
+    f.write("cr_peak_duration =  {0:.3E} ! duration [s] of peak grain temperature\n".format(cr_peak_duration))
+    f.write("Fe_ionisation_rate =  {0:.3E} ! (cosmic) Fe-ion--grain encounter [s-1 grain-1]\n".format(Fe_ionisation_rate)) 
+    f.write("!! (for 0.1 micron grain) For cosmic photo desorptions, only Fe-ions are efficient to heat grains.\n") 
+    f.write("vib_to_dissip_freq_ratio =  {0:.3E} ! [no unit] The ratio of the surface-molecule bond frequency to the frequency at\n".format(vib_to_dissip_freq_ratio))
+    f.write("!! which energy is lost to the grain surface. Used for the RRK (Rice Ramsperger-Kessel) desorption mechanism\n")
+    f.write("!! (see Garrod el al. 2007 for more). Assumed to be 1% by default.\n")
+    f.write("ED_H2 =  {0:.3E} ! H2 binding energy over itself. Used for the desorption encounter mechanism. in K.\n".format(ED_H2)) 
+    f.write("\n")
+    f.write("!*****************************\n")
+    f.write("!*  Integration and Outputs  *\n")
+    f.write("!*****************************\n")
+    f.write("\n")
+    f.write("start_time =  {0:.3E} ! [yrs] first output time\n".format(start_time))
+    f.write("stop_time =  {0:.3E} ! [yrs] last output time\n".format(stop_time))
+    f.write("nb_outputs = {0:d} ! Total number of outputs (used for linear or log spaced outputs)\n".format(nb_outputs))
+    f.write("output_type = {0:s} ! linear, log\n".format(output_type))
+    f.write("! linear: Output times are linearly spaced\n")
+    f.write("! log   : Outputs times are log-spaced\n")
+    f.write("relative_tolerance =  {0:.3E} ! Relative tolerance of the solver\n".format(relative_tolerance))
+    f.write("minimum_initial_abundance =  {0:.3E} ! default minimum initial fraction abundance\n".format(minimum_initial_abundance))
+    f.close()
+
+def grain_sizes(path, sizes, gas_density, dust_density, T_dust):
+    f = open(path + '1D_grain_sizes.in',"w")
+    f.write('! grain-radius [cm] 1/abundance  grain-temp CR-peak-Temperaturegrain[K] spatial-point\n')
+    f.write('\n')
+    for zi in range(0, len(gas_density)):
+        for ai, a in enumerate(sizes[-1]*1e-4):
+            f.write('%10.4E ' %a)
+        f.write('    ')
+        for ai, a in enumerate(sizes[-1]):
+            inv_ab = gas_density[zi]/dust_density[ai, zi]
+            f.write('%12.6E ' %inv_ab)
+        f.write('    ')
+        for ai, a in enumerate(sizes[-1]):
+            f.write('%12.6E ' %T_dust[ai, zi])
+        f.write('    ')
+        for ai, a in enumerate(sizes[-1]):
+            f.write('73 ')
+        f.write('            !         %d'%(zi+1))
+        f.write('\n')
+    f.close()
+
+    f = open(path + 'temperatures.dat',"w")
+    for zi in range(0, len(gas_density)):
+        for ai, a in enumerate(sizes[-1]):
+            f.write('%12.6E ' %T_dust[ai, zi])
+        f.write('\n')
+    f.close()
+
 def uv_factor(UV_ref, ref_radius, radius, Hg):
     uvfact = UV_ref/(2*((radius/ref_radius)**2 + ((4*Hg)/(ref_radius))**2))
     return uvfact

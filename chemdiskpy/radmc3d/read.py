@@ -33,16 +33,16 @@ def dust_temperature(path, filename=None, ext=None, binary=False):
 
     temperature = []
     index = 3
-    for i in range(nspecies):
-        temp = np.empty((ncells,))
+    #for i in range(nspecies):
+    temp = np.empty((nspecies*ncells,))
 
-        for j in range(ncells):
-            if binary:
-                temp[j] = data[index+j]
-            else:
-                temp[j] = float(f.readline())
+    for j in range(nspecies*ncells):
+        if binary:
+            temp[j] = data[index+j]
+        else:
+            temp[j] = float(f.readline())
 
-        temperature.append(temp)
+    temperature.append(temp)
 
     f.close()
 

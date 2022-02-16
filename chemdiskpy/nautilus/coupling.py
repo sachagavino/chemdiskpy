@@ -1,6 +1,4 @@
 import numpy as np
-import pandas as pd
-import sys
 from ..constants.constants import c
 
 def moving_average(x, w):
@@ -19,7 +17,8 @@ def dust_temperature(temp_radmc3d, rchem, zchem, d, theta, hg):
                 theta_pt = np.arccos(zz[idx, alt]/d_pt) #convert from cartesian to spherical
                 closest_d = min(enumerate(d), key=lambda x: abs(x[1]-d_pt)) #find closest grid point
                 closest_t = min(enumerate(theta), key=lambda x: abs(x[1]-theta_pt)) #find closest grid point
-                temp_naut[size_id, idx, alt] = temp_radmc3d[size_id, closest_d[0], closest_t[0], 0] 
+                #temp_naut[size_id, idx, alt] = temp_radmc3d[size_id, closest_d[0], closest_t[0], 0] 
+                temp_naut[size_id, idx, alt] = temp_radmc3d[size_id, 0, closest_t[0], closest_d[0]] 
 
     #SMOOTHING TEMPERATURE PROFILE
     for idx in range(len(rchem)):

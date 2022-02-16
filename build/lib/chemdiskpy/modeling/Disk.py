@@ -7,7 +7,7 @@ short description:  Model of a static flared disk adapted for RT and chemistry s
 _____________________________________________________________________________________________________________
 """
 from __future__ import absolute_import
-import os, sys, inspect
+import os, glob, sys, inspect
 import numpy as np
 
 from .. constants.constants import mu, autocm, amu, Ggram, kb, M_sun
@@ -344,13 +344,35 @@ class Disk:
                     qext[idx_a, idx_wl] = self.q_c*(wl/lambda_c[idx_a])**(-2) #regime C
 
         rr, zz = np.meshgrid(r, z, indexing='ij')
-        hg = self.scaleheight(rr/autocm)    
+        hg = self.scaleheight(rr)    
         zz = hg*zz
         avz = np.zeros( (len(r), len(z)) )
         for idx_r in range(0, len(r), 1):
             for idx_z in range(1, len(z), 1):
                 for idx_a in range(0, len(sizes[-1]), 1):
-                    avz[idx_r, idx_z] += 1.086*np.pi*nd[idx_a, idx_r, idx_z]*qext[idx_a, 16]*(zz[idx_r, idx_z-1] - zz[idx_r, idx_z])*(sizes[-1][idx_a]*1e-4)**2
+                    avz[idx_r, idx_z] += 1.086*np.pi*nd[idx_a, idx_r, idx_z]*qext[idx_a, 20]*(zz[idx_r, idx_z-1] - zz[idx_r, idx_z])*(sizes[-1][idx_a]*1e-4)**2
             avz[idx_r, :] = np.cumsum(avz[idx_r, :])
 
         return avz
+
+    # def av_z2(self ,mass, filelist, ):
+    #     #--Av
+    #     mass = d.grainmass() #g
+    #     kext = np.zeros(len(mass))
+    #     filelist = sorted(glob.glob('thermal/dustkap*'))
+    #     for ai in range(0, len(mass)):
+    #         kappa = pd.read_table(filelist[ai], sep="\s+", comment='#', header=None, skiprows=10)
+    #         kext[ai] += (kappa[1].iloc[0] + kappa[2].iloc[0]) # k_extinction at wc ~ 550 nm.
+
+    #     av_mid = np.ones(len(radii))
+    #     for ri in range(len(radii)):
+    #         z = m.grid.zchem*m.grid.hg_chem[0][ri]
+    #         av_z = np.zeros(len(m.grid.zchem))
+    #         av_z[0] = 0
+    #         for zi in range(1, len(m.grid.zchem)):
+    #             for ai in range(0, len(mass)):
+    #                 av_z[zi] += 1.086*m.grid.dustdensity_chem[0][ai, ri, zi]*mass[ai]*kext[ai]*(z[zi-1] - z[zi])
+    #         av_z = np.cumsum(av_z)
+    #         av_mid[ri] = av_z[-1]
+    #     print(av_mid)
+    #     #--

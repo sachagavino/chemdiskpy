@@ -1,10 +1,4 @@
 ################################################################################################################
-# Input parameter file. These are the parameters of the computed source. 
-# used by geometrical_model.py
-
-
-
-################################################################################################################
 #                                                     radmc3d                                                  #
 ################################################################################################################
 lmin = 0.1
@@ -45,7 +39,7 @@ cavz0 = 1.000e1                             # [au]
 ################################################################################################################
 #                                                  DISK GAS                                                    #
 ################################################################################################################
-sigma_gas_ref = 3.350e-01                   # surface density of the gas at reference radius [g.cm-2]
+sigma_gas_ref = None #3.350e-01                   # surface density of the gas at reference radius [g.cm-2]
 h0 = 8.21                                   # scale height at reference [au]
 p_exp = 1.500e+00                           # surface density exponent
 nH_to_AV_conversion = 1.600e+21             # conversion factor of H colmun density to Av (Wagenblast \& Hartquist 1989)
@@ -66,7 +60,7 @@ asingle = 1.000e-05                         # size of small grains if nb_sizes =
 cst_norm = 7.41e-26                         # normalization constant (7.41e-26 in the case of MRN distribution as in MRN1977)
 cutoff = 0.000e+00                          # whether yes or no you want a cutoff at cut radius. 1="cutoff", 0="no cutoff"
 dust_mass = 1.7e-3                          # Total dust mass in the disk in solar mass
-q_c = 6                                     # Extinction at resonance
+q_c = 6                                     # Extinction efficiency at resonance
 ################################################################################################################
 #                                                      STAR                                                    #
 ################################################################################################################

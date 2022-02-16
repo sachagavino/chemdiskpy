@@ -355,6 +355,16 @@ class Disk:
 
         return avz
 
+
+    def avz_ism(self, lam, A=2, q_c=4):
+        """ E)
+	    Return visual extinction using the conversion factor of H column density to Av:. 
+
+        Notes:
+        -----
+        3D array (len(nb_sizes), len(r), len(z)). Units: [cm-3]
+	    """	
+
     # def av_z2(self ,mass, filelist, ):
     #     #--Av
     #     mass = d.grainmass() #g

@@ -1,7 +1,7 @@
 def control(incl_dust=None, incl_lines=None, incl_freefree=None, \
         nphot_therm=None, nphot_scat=None, nphot_mono=None, nphot_spec=None, iseed=None, \
         ifast=None, enthres=None, itempdecoup=None, istar_sphere=None, \
-        ntemp=None, temp0=None, temp1=None, scattering_mode_max=None, \
+        ntemp=None, temp0=None, temp1=None, scattering_mode_max=1, \
         rto_style=None, camera_tracemode=None, camera_nrrefine=None, \
         camera_refine_criterion=None, camera_incl_stars=None, \
         camera_starsphere_nrpix=None, camera_spher_cavity_relres=None, \

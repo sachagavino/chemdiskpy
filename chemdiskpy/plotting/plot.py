@@ -151,7 +151,7 @@ def midplane_temp():
     for ispec in range(0, nbspecies):
         ax.plot(radii, midtemp[ispec].rolling(window=8, center=True).mean(), linewidth=2, linestyle='-', label='bin: {}'.format(ispec+1))
     ax.set_ylim(0,60)
-    ax.set_xlim(1,350)
+    #ax.set_xlim(1,350)
     ax.set_xlabel(r'r [au]', fontsize = 20)
     ax.set_ylabel(r'T [K]', fontsize = 20)
     ax.legend(fontsize=15)
@@ -201,7 +201,22 @@ def vertical_temp(r=100):
         ax.tick_params(labelsize=18)
         plt.show()
 
-
+def avz(r=100):
+    static = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!', skiprows=1)
+    #--PLOT FIGURE--
+    fig = plt.figure(figsize=(9.6, 8.2))
+    ax = fig.add_subplot(111)
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    ax.text(0.91, 0.05, '{} AU'.format(r), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
+    #-----profiles
+    ax.plot(static[3], static[0], linewidth=2, linestyle='-', label='vertical Av')
+    # ax.set_ylim(0,60)
+    # ax.set_xlim(1,350)
+    ax.set_xlabel(r'z [au]', fontsize = 20)
+    ax.set_ylabel(r'A$_\mathrm{\nu}$ [mag]', fontsize = 20)
+    ax.legend(fontsize=15)
+    ax.tick_params(labelsize=18)
+    plt.show()
 
 def opacity():
     opaclist = sorted(glob.glob('thermal/dustkap*'))

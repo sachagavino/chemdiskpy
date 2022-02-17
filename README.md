@@ -9,7 +9,7 @@ Although it is totally possible to use only one grain size and species, the main
 
 - last release from test [https://test.pypi.org/](https://test.pypi.org/):
 
-        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.3.5
+        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.3.7
 
 
 ## Quick start
@@ -126,6 +126,9 @@ plot.opacity()
 nphot_mono = 1e7 # choose number of photons
 m.run_localfield(nphot_mono = nphot_mono)
 ```
+
+- **WARNING**: If you want to compute the local field, you have to know which scattering mode you want to use. To select the mode, set **scattering_mode_max** to the value you need (see RADMC3D documentation) in the **run_thermal** instance above. If you don't set a value, the default one is 1.  
+
 
 ### NAUTILUS GRID
 - radii in au where you want to compute chemistry:

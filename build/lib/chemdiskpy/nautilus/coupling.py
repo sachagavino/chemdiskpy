@@ -5,7 +5,8 @@ def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'same') / w
 
 def dust_temperature(temp_radmc3d, rchem, zchem, d, theta, hg):
-    nbspecies, nr, nt, nph = temp_radmc3d.shape
+    nbspecies, nph, nt, nr = temp_radmc3d.shape
+    print('temp shape coupl ', nbspecies, nr, nt, nph)
     hhg, zz = np.meshgrid(hg, zchem, indexing='ij')
     zz = hhg*zz
     temp_naut = np.ones((nbspecies, len(rchem), len(zchem)))
@@ -34,14 +35,14 @@ def local_field():
 
 def av_z(field_radmc3d, lam, rchem, zchem, d, theta, hg):
 
-    nlam, nt, nr = field_radmc3d.shape
-    lamuv = np.where((lam >= 0.5) & (lam <= 0.6)) 
+    nlam, nph, nt, nr = field_radmc3d.shape
+    lamuv = np.where((lam >= 0.5) & (lam <= 0.6)) # extract the ~ visible
     freq = c/(lam*1e-6)
     fieldint = np.zeros((nt, nr))
 
     # Integrate over uv frequencies:
     for i in lamuv[0]:
-        fieldint += field_radmc3d[i, :, :]*freq[i]
+        fieldint += field_radmc3d[i, 0, :, :]*freq[i]
     fieldint[fieldint==0.0] = 1e-30 #provide arbitrary low values in order to avoid division by zero.
     # Convert from spherical to nautilus grid:
     hhg, zz = np.meshgrid(hg, zchem, indexing='ij')

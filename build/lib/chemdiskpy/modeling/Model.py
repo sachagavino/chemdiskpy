@@ -28,7 +28,6 @@ class Model:
         radmc3d.run.thermal(verbose=verbose, timelimit=timelimit, nice=nice)
 
         self.grid.temperature = radmc3d.read.dust_temperature(thermpath) # will be updated when multiple structures
-
         #-------- IF MULTIPLE STRUCTURES:
         # for i in range(len(self.grid.temperature)):
         #     nbspecies, n1, n2, n3 = self.grid.dustdensity[i].shape
@@ -37,19 +36,22 @@ class Model:
         nbspecies, nr, nt, nph = self.grid.dustdensity[0].shape
         #self.grid.temperature[0] = self.grid.temperature[0].reshape((nbspecies, n1, n2, n3))
         self.grid.temperature[0] = np.reshape(self.grid.temperature[0], (nbspecies, nph, nt, nr))
+        print('temp shape model', self.grid.temperature[0].shape)
+        #self.grid.temperature[1] = np.reshape(self.grid.temperature[1], (nbspecies, nph, nt, nr)) #if two structures
 
     def run_localfield_radmc3d(self, nphot_mono=1e6, verbose=True, timelimit=7200):
         radmc3d.run.localfield(nphot_mono=nphot_mono, verbose=verbose, timelimit=timelimit)
 
         thermpath='thermal/'
         self.grid.localfield = radmc3d.read.localfield(thermpath)
-
+        nlam = len(self.grid.monolam)
+        
         # #for i in range(len(self.grid.localfield)):
-        # nbspecies, n1, n2, n3 = self.grid.dustdensity[0].shape
-        # nlam = int(len(self.grid.localfield)/(n1*n2))
-        # self.grid.localfield = np.reshape(radmc3d.read.localfield(thermpath), (nlam, n2, n1))
-        # #self.grid.localfield = np.reshape(self.grid.localfield, (nlam, n2, n1, n3))
-        # #print(self.grid.localfield.shape)
+        nbspecies, nr, nt, nph = self.grid.dustdensity[0].shape
+        # nlam = int(len(self.grid.localfield)/(nr*nt))
+        #self.grid.localfield = np.reshape(radmc3d.read.localfield(thermpath), (nlam, n2, n1))
+        self.grid.localfield = np.reshape(self.grid.localfield, (nlam, nph, nt, nr))
+        print('rad shape ', self.grid.localfield.shape)
         # #self.grid.localfield.reshape((nlam, n1, n2, n3))
 
 

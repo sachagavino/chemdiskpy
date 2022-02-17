@@ -63,17 +63,16 @@ def localfield(path, filename=None):
     # f.readline()
 
     # localfield = []
-    # for i in range(nfreq*ncells):
-    #     localfield.append(float(f.readline()))
+    # # for i in range(nfreq*ncells):
+    # #     localfield.append(float(f.readline()))
 
+    # for i in range(nfreq):
+    #     field = np.empty((ncells,))
 
-    # # for i in range(nfreq):
-    # #     field = np.empty((ncells,))
+    #     for j in range(ncells):
+    #         field[j] = float(f.readline())
 
-    # #     for j in range(ncells):
-    # #         field[j] = float(f.readline())
-
-    # #     localfield.append(field)
+    #     localfield.append(field)
 
     # f.close()
 

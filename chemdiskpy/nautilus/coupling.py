@@ -6,7 +6,7 @@ def moving_average(x, w):
 
 def dust_temperature(temp_radmc3d, rchem, zchem, d, theta, hg):
     nbspecies, nph, nt, nr = temp_radmc3d.shape
-    print('temp shape coupl ', nbspecies, nr, nt, nph)
+    #print('temp shape coupl ', nbspecies, nr, nt, nph)
     hhg, zz = np.meshgrid(hg, zchem, indexing='ij')
     zz = hhg*zz
     temp_naut = np.ones((nbspecies, len(rchem), len(zchem)))

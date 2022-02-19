@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: chemdiskpy
-Version: 0.3.7
+Version: 0.4.0
 Summary: Thermal and chemical modeling of multiple grain-sized protoplanetary disks
 Home-page: UNKNOWN
 Author: Patrick Sheehan, Sacha Gavino
@@ -25,7 +25,7 @@ Although it is totally possible to use only one grain size and species, the main
 
 - last release from test [https://test.pypi.org/](https://test.pypi.org/):
 
-        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.3.7
+        pip install -i https://test.pypi.org/simple/ chemdiskpy==0.4.0
 
 
 ## Quick start
@@ -57,10 +57,12 @@ m = modeling.YSOModel()
 
 ### DISK PARAMETERS
 ```
-nr, ntheta, nphi = 301, 181, 2 # number of points for the dust continuum radiative transfer
-rin, rout= 1, 500 # in au
+nr, ntheta, nphi = 301, 181, 2
+rin, rout= 1, 500
 dtogas = 1e-2
-star_mass = 0.8 # in solar mass 
+star_mass = 1. #solar mass
+dust_mass = 1e-4 #solar mass
+q_c = 12 # extinction efficiency at resonance. Usefull only if you don't compute the local field in RADMC3D.
 ```
 
 ### WAVELENGTH GRID
@@ -79,7 +81,7 @@ m.set_spherical_grid(rin, rout, nr, ntheta, nphi, log=True)
 ### STAR
 - This is a simple black-body spectrum. UV from accreting material will be added in future versions. The star is located at coordinates (0,0,0)
 ```
-m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)
+m.add_star(mass=star_mass, luminosity=0.8, temperature=3900., x=0., y=0., z=0.)
 ```
 
 ### INTERSTELLAR RADIATION FIELD (optional)
@@ -97,24 +99,29 @@ sizes = d.sizes() # get the size
 mass = d.grainmass() # get the grain mass for each grain size. 
 ```
 
+- If **nb_sizes = 1**, then the grain size read is rsingle and amin and amax are not read.
+- If **nb_sizes > 1**, then rsingle is not read and the size range is given by amin and amax.
+
 - Then, create a dust disk structure with spherical coordinates for RADMC3D with the values previously set. 
 ```
-m.add_disk(dust=d, rin=rin, rout=rout, dtogas=dtogas, dust_mass=8e-5, settling=True, coordsystem='spherical')
+m.add_disk(dust=d, rin=rin, rout=rout, star_mass=star_mass, dtogas=dtogas, dust_mass=dust_mass, q_c=q_c, settling=True, coordsystem='spherical')
 ```
 
 ### RUN THERMAL
-- The main parameters are the number of photons **nphot** and **nphot_scat**. 
+- The most important parameters are the number of photons **nphot** and **nphot_scat**. 
 ```
-m.run_thermal(nphot = 5e5, \
-              nphot_scat = 5e5, \
+m.thermal(run=True, nphot = 2e7, \
+              nphot_scat = 2e7, \
               nphot_spec = 1e5, \
               itempdecoup = 1, \
               istar_sphere = 1, \
               modified_random_walk = 1, \
               rto_style = 1, \
-              scattering_mode_max = 1, \
+              scattering_mode_max = 2, \
               tgas_eq_tdust = 0)
 ```
+
+- The parameter **run** is a flag. If True, then **radmc3d mctherm** is run and the dust continuum RT is computed. If False, the user assumes the **dust_temperature.dat** already exists in the model and there is no need to compute the dust temperature. However,  **m.thermal()** is still called because the thermal model will be used to compute the NAUTILUS model. 
 
 ### PLOT THE RESULTS (optional)
 - Dust temperature:
@@ -139,17 +146,18 @@ plot.opacity()
 
 ### RUN LOCAL RADIATION (optional)
 ```
-nphot_mono = 1e7 # choose number of photons
-m.run_localfield(nphot_mono = nphot_mono)
+nphot_mono = 2000000 # choose number of photons sufficiently large.
+m.localfield(run=True, nphot_mono = nphot_mono)
 ```
+- As for thermal(), if **run==True**, then the local radiation field is computed using **radmc3d mcmono**. If it is False, then the user assumes the local radiation field is already computed (mean_intensity.out exists) and does not need to re-compute it again.
 
-- **WARNING**: If you want to compute the local field, you have to know which scattering mode you want to use. To select the mode, set **scattering_mode_max** to the value you need (see RADMC3D documentation) in the **run_thermal** instance above. If you don't set a value, the default one is 1.  
+- **WARNING**: If you want to compute the local field, make sure the scattering mode is set to a value lower than 2. To select the mode, set **scattering_mode_max** to the value you need (see RADMC3D documentation) in the **run_thermal** instance above. If you don't set a value, the default value is 1.  
 
 
 ### NAUTILUS GRID
 - radii in au where you want to compute chemistry:
 ```
-rchem = [10, 20, 30 , 40, 50, 60, 80, 100] 
+rchem = [10, 20, 30, 50, 80, 100, 140, 160, 200]
 ```
 - create NAUTILUS grid. 
 - The value **max_h** is the maximum scale height (z/H) where chemistry will be computed. The grid is empty above. 
@@ -159,15 +167,15 @@ m.grid.set_nautilus_grid(rchem, max_h=4, nz_chem=64)
 ```
 
 ### CREATE NAUTILUS DISK STRUCTURE
-- Use the same dust model as for RADMC3D.
+- Use the same dust model as for RADMC3D. Make sure the disk parameters are the same as provided in the thermal disk model (m.add_disk(...)). 
 ```
-m.add_nautilusdisk(dust=d, dtogas=dtogas, settling=True)
+m.add_nautilusdisk(dust=d, rin=rin, rout=rout,  star_mass=star_mass, dust_mass=dust_mass, q_c=q_c, dtogas=dtogas, settling=True)
 ```
 
 ### CREATE NAUTILUS DISK MODEL
 - Create a ready-to-use nautilus disk model in **chemistry/**. The dust temperature (and local flux if needed) is extraced from the RADMC3D results.
 ```
-m.write_nautilus(sizes=sizes, uv_ref=3400, dtogas=dtogas, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.300E-17, network=False, coupling_av=False)
+m.write_nautilus(sizes=sizes, uv_ref=3400, dtogas=dtogas, ref_radius=m.disk.ref_radius, cr_ionisation_rate=1.300E-17, network=False, coupling_av=True)
 ```
 
 - **network=False** implies that the user has to add his/her own chemical network. If True, the kida.14 network will be added in the user's model.

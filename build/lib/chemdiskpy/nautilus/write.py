@@ -156,15 +156,16 @@ def parameters_multi(path, resolution, phase=1, \
                preli=0, \
                t=0, \
                grain_temp='fixed_to_dust_size', \
-               is_dust_1D=0, \
+               is_dust_1D=1, \
                photo_disk=0, \
                is_grain_reactions=1, \
                is_h2_adhoc_form=0, \
                is_h2_formation_rate=1, \
+               height_h2formation=1, \
                is_absorption_h2=1, \
                is_absorption_co=2, \
                is_absorption_n2=1, \
-               is_photodesorb=0, \
+               is_photodesorb=1, \
                is_crid=0, \
                is_er_cir=0, \
                tunneling=0, \
@@ -240,6 +241,7 @@ def parameters_multi(path, resolution, phase=1, \
     f.write("is_grain_reactions = {0:d} ! Accretion, grain surface reactions\n".format(is_grain_reactions))
     f.write("is_h2_adhoc_form = {0:d} ! Ad hoc formation of H2 on grain surfaces (1=activated)\n".format(is_h2_adhoc_form))
     f.write("is_h2_formation_rate = {0:d} ! h2 formation rates on surfaces from Bron et al: (2014)\n".format(is_h2_formation_rate))
+    f.write("height_h2formation = {0:d} ! Spatial point above which B14's method is used. If 0 then B14 is not used at all even if is_h2_formation_rate = 1".format(height_h2formation))
     f.write("is_absorption_h2 = {0:d} ! H2 self-shielding from Lee & Herbst (1996) (1=activated)\n".format(is_absorption_h2))
     f.write("is_absorption_co = {0:d} ! CO self-shielding. (1: Lee & Herbst (1996), 2: Visser et al. (2009)\n".format(is_absorption_co))
     f.write("is_absorption_n2 = {0:d} ! N2 self-shielding from Li et al. (2013) (1=activated)\n".format(is_absorption_n2))

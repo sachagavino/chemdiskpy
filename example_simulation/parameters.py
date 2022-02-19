@@ -12,11 +12,11 @@ nz_chem = 64                                # number of spatial points for chemi
 ################################################################################################################
 #                                             disk physical structure                                          #
 ################################################################################################################
-disk_mass = 0.15                             # mass of the disk in Solar mass
+disk_mass = 0.15                            # mass of the disk in Solar mass
 ref_radius = 1.000e+02                      # reference radius for parametric laws
 cut_radius = 5.000e+02                      # tapered edge radius [au]
-rin = 1.000e+00                    # inner radius [au]
-rout = 3.000e+02                    # outer radius [au]
+rin = 1.000e+00                             # inner radius [au]
+rout = 3.000e+02                            # outer radius [au]
 Tmidplan_ref = 1.000e+01                    # mid-plan temperature at the reference radius
 Tatmos_ref = 5.000e+01                      # atmospheric temperature at the reference radius (where z=n*H)
 q_exp = 4.000e-01                           # exponent for the radial variation of temperature and gas scale height
@@ -24,7 +24,7 @@ sigma_t = 2.000e+00                         # stiffness of the vertical temperat
 ################################################################################################################
 #                                           envelope physical structure                                        #
 ################################################################################################################
-rmin = 3.000e+1                              # outer radius of the envelope [au]
+rmin = 3.000e+1                             # outer radius of the envelope [au]
 rmax = 1.000e+2                             # inner radius [au]
 nr = 4
 ntheta = 65
@@ -39,7 +39,7 @@ cavz0 = 1.000e1                             # [au]
 ################################################################################################################
 #                                                  DISK GAS                                                    #
 ################################################################################################################
-sigma_gas_ref = None #3.350e-01                   # surface density of the gas at reference radius [g.cm-2]
+sigma_gas_ref = None #3.350e-01             # surface density of the gas at reference radius [g.cm-2]
 h0 = 8.21                                   # scale height at reference [au]
 p_exp = 1.500e+00                           # surface density exponent
 nH_to_AV_conversion = 1.600e+21             # conversion factor of H colmun density to Av (Wagenblast \& Hartquist 1989)

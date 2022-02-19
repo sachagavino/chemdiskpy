@@ -350,9 +350,9 @@ class Disk:
         for idx_r in range(0, len(r), 1):
             for idx_z in range(1, len(z), 1):
                 for idx_a in range(0, len(sizes[-1]), 1):
-                    avz[idx_r, idx_z] += 1.086*np.pi*nd[idx_a, idx_r, idx_z]*qext[idx_a, 20]*(zz[idx_r, idx_z-1] - zz[idx_r, idx_z])*(sizes[-1][idx_a]*1e-4)**2
+                    avz[idx_r, idx_z] += 1.086*np.pi*nd[idx_a, idx_r, idx_z]*qext[idx_a, 15]*(zz[idx_r, idx_z-1] - zz[idx_r, idx_z])*(sizes[-1][idx_a]*1e-4)**2
             avz[idx_r, :] = np.cumsum(avz[idx_r, :])
-
+            avz[:, 0] = avz[:, 1]
         return avz
 
 

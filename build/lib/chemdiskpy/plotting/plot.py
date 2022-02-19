@@ -9,7 +9,7 @@ ________________________________________________________________________________
 short description:  plotting of the disk thermal model
 __________________________________________________________________________________________
 """
-import glob 
+import glob, sys
 
 import numpy as np
 import pandas as pd
@@ -130,7 +130,11 @@ def midplane_temp():
     nr = int(grid.columns[0].split("  ")[0])
     nt = int(grid.columns[0].split("  ")[1])
     grid = grid[head[0]].values
-    temp = pd.read_table('thermal/dust_temperature.dat', engine='python', header=None, skiprows=3)
+    try:
+        temp = pd.read_table('thermal/dust_temperature.dat', engine='python', header=None, skiprows=3)
+    except IOError:
+        print('plot.midplane_temp: the file thermal/dust_temperature.dat is not present. Run a dust thermal simulation first.')
+        sys.exit(1)
     temp = temp[0].values
     nbspecies = int(len(temp)/(nr*nt))
     temp = np.reshape(temp, (nbspecies, nt, nr))
@@ -149,7 +153,7 @@ def midplane_temp():
     #-----profiles
     midtemp = pd.DataFrame(data=midtemp.transpose())
     for ispec in range(0, nbspecies):
-        ax.plot(radii, midtemp[ispec].rolling(window=8, center=True).mean(), linewidth=2, linestyle='-', label='bin: {}'.format(ispec+1))
+        ax.plot(radii, midtemp[ispec].rolling(window=6, center=True).mean(), linewidth=2, linestyle='-', label='bin: {}'.format(ispec+1))
     ax.set_ylim(0,60)
     #ax.set_xlim(1,350)
     ax.set_xlabel(r'r [au]', fontsize = 20)
@@ -169,7 +173,11 @@ def vertical_temp(r=100):
     nbspecies = int(len(temp)/(nr*nt))
 
     if nbspecies == 1:
-        temp = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!')
+        try:
+            temp = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!')
+        except IOError:
+            print('plot.vertical_temp: radius {} does not exit in the model or path is not correct.'.format(r))
+            sys.exit(1)
         #--PLOT FIGURE--
         fig = plt.figure(figsize=(9.6, 8.2))
         ax = fig.add_subplot(111)
@@ -177,14 +185,18 @@ def vertical_temp(r=100):
         ax.plot(temp[5], temp[0], linewidth=2, linestyle='-', label='{} AU'.format(r))
         # ax.set_ylim(0,60)
         # ax.set_xlim(1,350)
-        ax.set_xlabel(r'z [au]', fontsize = 20)
-        ax.set_ylabel(r'T$_\mathrm{d}$ [K]', fontsize = 20)
+        ax.set_ylabel(r'z [au]', fontsize = 20)
+        ax.set_xlabel(r'T$_\mathrm{d}$ [K]', fontsize = 20)
         ax.legend(fontsize=15)
         ax.tick_params(labelsize=18)
         plt.show()
     elif nbspecies > 1:
-        static = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!')
-        temp = pd.read_table('chemistry/'+str(r)+'AU/temperatures.dat', sep="\s+", engine='python', header=None)
+        try:
+            static = pd.read_table('chemistry/'+str(r)+'AU/1D_static.dat', sep="\s+", engine='python', header=None, comment='!')
+            temp = pd.read_table('chemistry/'+str(r)+'AU/temperatures.dat', sep="\s+", engine='python', header=None)
+        except IOError:
+            print('plot.vertical_temp: radius = {} au does not exit in the model or path is not correct.'.format(r))
+            sys.exit(1)
         #--PLOT FIGURE--
         fig = plt.figure(figsize=(9.6, 8.2))
         ax = fig.add_subplot(111)
@@ -195,8 +207,8 @@ def vertical_temp(r=100):
             ax.plot(temp[ai], static[0], linewidth=2, linestyle='-', label='bin: {}'.format(ai+1))
         # ax.set_ylim(0,60)
         # ax.set_xlim(1,350)
-        ax.set_xlabel(r'z [au]', fontsize = 20)
-        ax.set_ylabel(r'T$_\mathrm{d}$ [K]', fontsize = 20)
+        ax.set_ylabel(r'z [au]', fontsize = 20)
+        ax.set_xlabel(r'T$_\mathrm{d}$ [K]', fontsize = 20)
         ax.legend(fontsize=15)
         ax.tick_params(labelsize=18)
         plt.show()

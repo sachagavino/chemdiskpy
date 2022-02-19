@@ -13,20 +13,11 @@ class Model:
     def __init__(self):
         self.grid = Grid()
 
-    def run_thermal(self, nphot=1e6, **keywords):
+    def thermal(self, nphot=1e6, run=True, **keywords):
+        if run == True:
             self.run_thermal_radmc3d(nphot=nphot, **keywords)
 
-    def run_localfield(self, nphot_mono=1e6):
-        self.run_localfield_radmc3d(nphot_mono=nphot_mono)
-
-    def run_thermal_radmc3d(self, nphot=1e6, verbose=True, timelimit=7200, \
-            nice=None, **keywords):
-
-        thermpath='thermal/'
-
-        self.write_radmc3d(nphot_therm=nphot, **keywords)
-        radmc3d.run.thermal(verbose=verbose, timelimit=timelimit, nice=nice)
-
+        thermpath='thermal/'    
         self.grid.temperature = radmc3d.read.dust_temperature(thermpath) # will be updated when multiple structures
         #-------- IF MULTIPLE STRUCTURES:
         # for i in range(len(self.grid.temperature)):
@@ -36,11 +27,11 @@ class Model:
         nbspecies, nr, nt, nph = self.grid.dustdensity[0].shape
         #self.grid.temperature[0] = self.grid.temperature[0].reshape((nbspecies, n1, n2, n3))
         self.grid.temperature[0] = np.reshape(self.grid.temperature[0], (nbspecies, nph, nt, nr))
-        print('temp shape model', self.grid.temperature[0].shape)
         #self.grid.temperature[1] = np.reshape(self.grid.temperature[1], (nbspecies, nph, nt, nr)) #if two structures
 
-    def run_localfield_radmc3d(self, nphot_mono=1e6, verbose=True, timelimit=7200):
-        radmc3d.run.localfield(nphot_mono=nphot_mono, verbose=verbose, timelimit=timelimit)
+    def localfield(self, nphot_mono=1e6, run=True):
+        if run == True:
+            self.run_localfield_radmc3d(nphot_mono=nphot_mono)
 
         thermpath='thermal/'
         self.grid.localfield = radmc3d.read.localfield(thermpath)
@@ -51,8 +42,16 @@ class Model:
         # nlam = int(len(self.grid.localfield)/(nr*nt))
         #self.grid.localfield = np.reshape(radmc3d.read.localfield(thermpath), (nlam, n2, n1))
         self.grid.localfield = np.reshape(self.grid.localfield, (nlam, nph, nt, nr))
-        print('rad shape ', self.grid.localfield.shape)
         # #self.grid.localfield.reshape((nlam, n1, n2, n3))
+
+    def run_thermal_radmc3d(self, nphot=1e6, verbose=True, timelimit=7200, \
+            nice=None, **keywords):
+        self.write_radmc3d(nphot_therm=nphot, **keywords)
+        radmc3d.run.thermal(verbose=verbose, timelimit=timelimit, nice=nice)
+
+
+    def run_localfield_radmc3d(self, nphot_mono=1e6, verbose=True, timelimit=7200):
+        radmc3d.run.localfield(nphot_mono=nphot_mono, verbose=verbose, timelimit=timelimit)
 
 
     def write_radmc3d(self, **keywords):
@@ -112,13 +111,25 @@ class Model:
         os.makedirs(chemfold)
 
         nbspecies = len(sizes[-1])
-
         # coupling from RADMC3D output model toward NAUTILUS input model                
         if coupling_temp == True:
+            if not self.grid.temperature:
+                print('The file thermal/dust_temperature.dat is not present or is corrupted.')
+                sys.exit(1)
+            elif self.grid.rchem.size == 0:
+                print('The radii for the chemistry model (rchem) are not set. Please write something like m.grid.set_nautilus_grid(rchem, ...)')
+                sys.exit(1)
+            elif not self.grid.hg_chem:
+                print('You did not define a NAUTILUS model. Please, write something like m.write_nautilus(sizes=sizes, ...).')
+                sys.exit(1)
             T_dust = nautilus.coupling.dust_temperature(self.grid.temperature[0], self.grid.rchem*autocm, self.grid.zchem, self.grid.r*autocm, self.grid.theta, self.grid.hg_chem[0]) # dim(a, rchem, zchem)
         else:
             T_dust = np.expand_dims(self.grid.tgas_chem[0], axis=0) # expend to one extra dimension in order to match the shape of coupled T_dust.
+
         if coupling_av == True:
+            if self.grid.localfield.size == 0:
+                print('The file thermal/mean_intensity.out is not present or is corrupted.')
+                sys.exit(1)
             av_z = nautilus.coupling.av_z(self.grid.localfield, self.grid.monolam, self.grid.rchem*autocm, self.grid.zchem, self.grid.r*autocm, self.grid.theta, self.grid.hg_chem[0]) # dim(rchem, zchem)
         else:
             av_z = self.grid.avz[0]
@@ -136,7 +147,6 @@ class Model:
 
             uvflux = nautilus.write.uv_factor(uv_ref, ref_radius, r, self.grid.hg_chem[0][idx]/autocm)
             avnh_fact = nautilus.write.avnh_factor(nH_to_AV_conversion, dtogas, rgrain, self.grid.zchem)
-
 
             if nbspecies == 1:
                 if param == True:

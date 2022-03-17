@@ -102,7 +102,7 @@ class Model:
     # WRITE NAUTILUS INPUT FILES
     def write_nautilus(self, sizes=np.array([[0.1]]), uv_ref=3400, nH_to_AV_conversion=1.600e+21, rgrain=0.1, dtogas=1e-2, ref_radius=100,\
                        stop_time=3e6, static=True, param=True, element=True, abundances=True, \
-                       activ_energies=True, surfaces=True, network=True, grain_sizes=True,\
+                       activ_energies=True, surfaces=True, network=True, nmgc=False, \
                        coupling_temp=True, coupling_av=True, **keywords):
 
         chemfold = 'chemistry'
@@ -127,7 +127,7 @@ class Model:
             T_dust = np.expand_dims(self.grid.tgas_chem[0], axis=0) # expend to one extra dimension in order to match the shape of coupled T_dust.
 
         if coupling_av == True:
-            if self.grid.localfield.size == 0:
+            if not self.grid.localfield.size:
                 print('The file thermal/mean_intensity.out is not present or is corrupted.')
                 sys.exit(1)
             av_z = nautilus.coupling.av_z(self.grid.localfield, self.grid.monolam, self.grid.rchem*autocm, self.grid.zchem, self.grid.r*autocm, self.grid.theta, self.grid.hg_chem[0]) # dim(rchem, zchem)
@@ -148,7 +148,7 @@ class Model:
             uvflux = nautilus.write.uv_factor(uv_ref, ref_radius, r, self.grid.hg_chem[0][idx]/autocm)
             avnh_fact = nautilus.write.avnh_factor(nH_to_AV_conversion, dtogas, rgrain, self.grid.zchem)
 
-            if nbspecies == 1:
+            if nmgc == False:
                 if param == True:
                     nautilus.write.parameters(path, resolution=self.grid.nz_chem, stop_time=stop_time, uv_flux=uvflux, **keywords)
                 if static == True:
@@ -162,9 +162,9 @@ class Model:
                                     self.grid.dustdensity_chem[0][0,idx,:], \
                                     rgrain, \
                                     avnh_fact)
-            if nbspecies > 1:
+            if nmgc == True:
                 if param == True:
-                    nautilus.write.parameters_multi(path, resolution=self.grid.nz_chem, nb_grains=nbspecies, stop_time=stop_time, uv_flux=uvflux, **keywords)
+                    nautilus.write.parameters_nmgc(path, resolution=self.grid.nz_chem, nb_grains=nbspecies, stop_time=stop_time, uv_flux=uvflux, **keywords)
                 if static == True:
                     nautilus.write.static(path, \
                                     self.grid.zchem, \
@@ -176,7 +176,7 @@ class Model:
                                     self.grid.dustdensity_chem[0][0,idx,:], \
                                     rgrain, \
                                     avnh_fact)
-                if grain_sizes == True:
+                if nbspecies > 1:
                     nautilus.write.grain_sizes(path, sizes, self.grid.gasdensity_chem[0][idx,:], self.grid.dustdensity_chem[0][:,idx,:], T_dust[:,idx,:])
 
             # if network == True:

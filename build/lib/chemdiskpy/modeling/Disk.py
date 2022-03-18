@@ -250,8 +250,10 @@ class Disk:
                 hd.append(hg/(np.sqrt(1 + stoptime_mid*(self.schmidtnumber/self.alpha))))
             return np.array(hd)
         if self.settling == False:
-            return np.array([hg])
-
+            for a in sizes[-1]:
+                hd.append(hg)
+            return np.array(hd)
+            
     def density_d(self, x1, x2, x3=None):
         """ C)
 	    Return dust density rho_d(r, z, a) or rho_d(r, theta, phi, a). 

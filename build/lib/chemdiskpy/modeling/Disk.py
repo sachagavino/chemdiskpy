@@ -84,7 +84,7 @@ class Disk:
             -R_ref:         reference radius [au]
         """
         h_exp = (3./2.) - (self.q_exp/2.)
-        if self.Tmidplan_ref != 0:
+        if self.Tmidplan_ref != None:
             h0 = np.sqrt((kb*self.Tmidplan_ref*(self.ref_radius*autocm)**3)/(mu*amu*Ggram*self.star_mass*M_sun))
             #h0 = h0/autocm
             hgas = h0*(r/(self.ref_radius))**h_exp

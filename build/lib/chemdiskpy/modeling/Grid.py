@@ -4,7 +4,7 @@ file name: Grid
 @author: P.Sheehan. Adapted by S. Gavino for chemistry codes.
 last update: Aug 2021
 language: PYTHON 3.8
-short description:  class Grid for YSO modeling. 
+short description:  class Grid for young stellar objects modeling. 
 _____________________________________________________________________________________________________________
 """
 

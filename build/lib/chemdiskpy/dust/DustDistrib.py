@@ -65,7 +65,7 @@ class DustDistrib:
             Calculate the mass fraction of each grain population relative to the total dust grains. 
             Returns
             -------
-                Numpy array. len(array) = (nb_sizes). Units: gram
+                Numpy array. len(array) = (nb_sizes).
             """
             a = self.sizes()
 

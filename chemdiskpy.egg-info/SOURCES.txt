@@ -17,7 +17,7 @@ chemdiskpy/modeling/Grid.py
 chemdiskpy/modeling/InterstellarRadFields.py
 chemdiskpy/modeling/Model.py
 chemdiskpy/modeling/Star.py
-chemdiskpy/modeling/YSOModel.py
+chemdiskpy/modeling/Structure.py
 chemdiskpy/modeling/__init__.py
 chemdiskpy/nautilus/__init__.py
 chemdiskpy/nautilus/coupling.py

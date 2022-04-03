@@ -101,7 +101,7 @@ class Model:
 
     # WRITE NAUTILUS INPUT FILES
     def write_nautilus(self, sizes=np.array([[0.1]]), uv_ref=3400, nH_to_AV_conversion=1.600e+21, rgrain=0.1, dtogas=1e-2, ref_radius=100,\
-                       stop_time=3e6, static=True, param=True, element=True, abundances=True, \
+                       stop_time=3e6, nb_outputs = 64, static=True, param=True, element=True, abundances=True, \
                        activ_energies=True, surfaces=True, network=True, nmgc=False, \
                        coupling_temp=True, coupling_av=True, **keywords):
 
@@ -150,7 +150,7 @@ class Model:
 
             if nmgc == False:
                 if param == True:
-                    nautilus.write.parameters(path, resolution=self.grid.nz_chem, stop_time=stop_time, uv_flux=uvflux, **keywords)
+                    nautilus.write.parameters(path, nb_outputs=nb_outputs, resolution=self.grid.nz_chem, stop_time=stop_time, uv_flux=uvflux, **keywords)
                 if static == True:
                     nautilus.write.static(path, \
                                     self.grid.zchem, \
@@ -164,7 +164,10 @@ class Model:
                                     avnh_fact)
             if nmgc == True:
                 if param == True:
-                    nautilus.write.parameters_nmgc(path, resolution=self.grid.nz_chem, nb_grains=nbspecies, stop_time=stop_time, uv_flux=uvflux, **keywords)
+                    if nbspecies == 1:
+                        nautilus.write.parameters_nmgc(path, grain_temp='table_1D', nb_outputs=nb_outputs, resolution=self.grid.nz_chem, nb_grains=nbspecies, stop_time=stop_time, uv_flux=uvflux, **keywords)
+                    else:
+                        nautilus.write.parameters_nmgc(path, grain_temp='fixed_to_dust_size', nb_outputs=nb_outputs, resolution=self.grid.nz_chem, nb_grains=nbspecies, stop_time=stop_time, uv_flux=uvflux, **keywords)
                 if static == True:
                     nautilus.write.static(path, \
                                     self.grid.zchem, \

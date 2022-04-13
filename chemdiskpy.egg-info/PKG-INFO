@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: chemdiskpy
-Version: 0.4.8
+Version: 0.4.9
 Summary: Thermal and chemical modeling of multiple grain-sized protoplanetary disks
 Home-page: UNKNOWN
 Author: Sacha Gavino
@@ -52,7 +52,7 @@ import chemdiskpy.plotting.plot as plot
 
 ### CREATE AN OBJECT:
 ```
-m = modeling.YSOModel() 
+m = modeling.Structure() 
 ```
 
 ### DISK PARAMETERS
@@ -149,9 +149,9 @@ plot.opacity()
 nphot_mono = 2000000 # choose number of photons sufficiently large.
 m.localfield(run=True, nphot_mono = nphot_mono)
 ```
-- As for thermal(), if **run==True**, then the local radiation field is computed using **radmc3d mcmono**. If it is False, then the user assumes the local radiation field is already computed (mean_intensity.out exists) and does not need to re-compute it again.
+- Just like thermal(), if **run==True**, then the local radiation field is computed using **radmc3d mcmono**. If it is False, then the user assumes the local radiation field is already computed (mean_intensity.out exists) and does not need to re-compute it again.
 
-- **WARNING**: If you want to compute the local field, make sure the scattering mode is set to a value lower than 2. To select the mode, set **scattering_mode_max** to the value you need (see RADMC3D documentation) in the **run_thermal** instance above. If you don't set a value, the default value is 1.  
+- **WARNING**: If you want to compute the local field, make sure the scattering mode is set to a value lower than 2 or greater than 4. To select the mode, set **scattering_mode_max** to the requested value (see RADMC3D documentation) in the **run_thermal** instance above. If you don't set a value, the default value is 1.  
 
 
 ### NAUTILUS GRID

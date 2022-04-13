@@ -7,7 +7,7 @@ short description:  Model of a static flared disk adapted for RT and chemistry s
 _____________________________________________________________________________________________________________
 """
 from __future__ import absolute_import
-import os, glob, sys, inspect
+import os, sys, inspect
 import numpy as np
 
 from .. constants.constants import mu, autocm, amu, Ggram, kb, M_sun

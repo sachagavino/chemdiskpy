@@ -4,6 +4,7 @@ import numpy as np
 from .Model import Model
 from .Star import Star
 from .Disk import Disk
+from .Envelope import Envelope
 from .InterstellarRadFields import InterstellarRadFields
 from .. constants.constants import autocm, M_sun, R_sun, L_sun
 
@@ -66,4 +67,14 @@ class Structure(Model):
         self.grid.add_gastemperature_chem(self.disk.temp_altitude(self.grid.rchem, self.grid.zchem))
         self.grid.add_hg_chem(self.disk.scaleheight(self.grid.rchem))
         self.grid.add_avz(self.disk.av_z(self.grid.lam, self.grid.dustdensity_chem[0], self.grid.rchem, self.grid.zchem))
+
+    def add_envelope(self,rmin=p.rmin, rmax=p.rmax, acc_rate=p.acc_rate, star_mass=p.star_mass, env_mass=p.env_mass, dtogas=p.dtogas, \
+                     cavpl=p.cavpl, cav_fact=p.cav_fact, cavz0=p.cavz0, dust=None, dust_density='g.cm-2', coordsystem='spherical'):
+        self.envelope = Envelope(rmin=rmin, rmax=rmax, r_centri=p.r_centri, \
+                       acc_rate=acc_rate, star_mass=star_mass, env_mass=env_mass, \
+                       dtogas=dtogas, cavpl=cavpl, cav_fact=cav_fact, cavz0=cavz0, dust=dust, dust_density=dust_density, coordsystem=coordsystem)
+
+        if (dust != None):
+            self.grid.add_dustdensity(self.envelope.density_d(self.grid.r, self.grid.theta, self.grid.phi))
+
 

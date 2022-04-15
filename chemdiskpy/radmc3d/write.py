@@ -289,7 +289,7 @@ def dust_density(density, gridstyle="normal"):
                 for iz in range(nz):
                     for iy in range(ny):
                         for ix in range(nx):
-                            f.write("{0:e}\n".format(density[0][ispec, ix,iy,iz]))
+                            f.write("{0:e}\n".format(density[istruc][ispec, ix,iy,iz]))
     f.close()
 
 

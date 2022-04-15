@@ -12,6 +12,9 @@ ________________________________________________________________________________
 
 
 import numpy as np
+from scipy.optimize import brenth
+from scipy.integrate import trapz
+
 from .. constants.constants import mu, autocm, amu, Ggram, kb, M_sun
 
 import parameters as p
@@ -28,20 +31,136 @@ import parameters as p
 #___________________________________________
 class Envelope:
     def __init__(self, rmin=p.rmin, rmax=p.rmax, r_centri=p.r_centri, \
-                       acc_rate=p.acc_rate, star_mass=p.star_mass, env_mass=p.env_mass, \
-                       cavpl=p.cavpl, cav_fact=p.cav_fact, cavz0=p.cavz0):
+                       acc_rate=p.acc_rate, star_mass=p.star_mass, env_mass=p.env_mass, dtogas=p.dtogas,  \
+                       cavpl=p.cavpl, cav_fact=p.cav_fact, cavz0=p.cavz0, dust=None, dust_density='g.cm-2', coordsystem='spherical'):
         self.rmin=rmin
         self.rmax=rmax
-        self.r_centri=r_centri
+        self.r_centri=r_centri*autocm
         self.acc_rate=acc_rate
         self.star_mass=star_mass
         self.env_mass=env_mass
+        self.dtogas = dtogas
         self.cavpl=cavpl
         self.cav_fact=cav_fact
         self.cavz0=cavz0
+        self.dust_density = dust_density
+        self.coordsystem = coordsystem
+        if (dust != None):
+            self.dust = dust
+    """
+	The following methods give the physical parameters related to the gas phase and dust in the envelope.
+	The gas number density is given relative to Hydrogren nuclei. Equation references are related to the documentation.
+	Instance methods:
+        A) 
+        B) 
+        C) 
+        D) 
+
+    """
+
+    def density(self, x1, x2, x3=None):
+        """ A)
+	    Return dust density rho_d(r, z, a) or rho_d(r, theta, phi, a). 
+
+        Notes:
+        -----
+        3D array (len(r), len(nb_sizes), len(z)). Units: [g.cm-3]
+	    """	
 
 
+        #######
+        if self.coordsystem =='spherical':
+            rt, tt, pp = np.meshgrid(x1*autocm, x2, x3, indexing='ij')
 
+            mu = np.cos(tt)
+
+            RR = rt * np.sin(tt)
+            zz = rt * np.cos(tt)
+
+            mu0 = mu*0
+            for ir in range(rt.shape[0]):
+                for it in range(rt.shape[1]):
+                    mu0[ir,it,0] = brenth(self.solution, -1.0, 1.0, args=(rt[ir,it,0], mu[ir,it,0]))
+
+            rho0 = 1.0
+            rho = rho0 * (rt / self.r_centri)**(-1.5) * (1 + mu/mu0)**(-0.5)* (mu/mu0 + 2*mu0**2 * self.r_centri/rt)**(-1)
+
+            mid1 = (np.abs(mu) < 1.0e-10) & (rt < self.r_centri)
+            rho[mid1] = rho0 * (rt[mid1] / self.r_centri)**(-0.5) * (1. - rt[mid1] / self.r_centri)**(-1) / 2.
+
+            mid2 = (np.abs(mu) < 1.0e-10) & (rt > self.r_centri)
+            rho[mid2] = rho0 * (2.*rt[mid2]/self.r_centri - 1)**(-0.5) * (rt[mid2]/self.r_centri - 1.)**(-1)
+
+            rho[(rt > self.rmax*autocm) ^ (rt < self.rmin*autocm)] = 0e0
+                
+            if x2.max() > np.pi/2:
+                mdot = (self.env_mass*M_sun)/(2*np.pi*trapz(trapz(rho*rt**2*np.sin(tt),tt,axis=1), \
+                        rt[:,0,:],axis=0))[0]
+            else:
+                mdot = (self.env_mass*M_sun)/(4*np.pi*trapz(trapz(rho*rt**2*np.sin(tt),tt,axis=1), \
+                        rt[:,0,:],axis=0))[0]
+            rho *= mdot
+
+            #--- Outflow cavity.
+            rho[np.abs(zz)/autocm-self.cavz0/autocm-(RR/autocm)**self.cavpl > 0.0] *= self.cav_fact
+
+            return rho
+
+    def numberdensity(self, x1, x2, x3=None):
+        """ B)
+        Return the gas number density. Unit: cm^-3.
+
+        Notes
+        -----
+        If vertically isothermal, the profile is Gaussian. If not, the density can be computed iteratively and the profile is not Gaussian.
+        """
+        ng = self.density(x1, x2, x3)/(mu*amu)            
+        return ng
+
+    def density_d(self, x1, x2, x3=None):
+        """ C)
+	    Return dust density rho_d(r, z, a) or rho_d(r, theta, phi, a). 
+
+        Notes:
+        -----
+        3D array (len(r), len(nb_sizes), len(z)). Units: [g.cm-3]
+	    """	
+        rhog = self.density(x1, x2, x3)
+        fraction = self.dust.massfraction()
+        rhod = np.ones( (len(fraction), len(x1), len(x2), len(x3)))
+
+        for i in range(len(fraction)): #len(hd) is equal to the number of grain sizes
+            rhod[i, :, :, :] = fraction[i]*self.dtogas*rhog[:, :, :]
+
+        if self.dust_density == 'g.cm-2':
+            return rhod
+
+    def numberdensity_d(self, x1, x2, x3=None):
+        """ D)
+	    Return dust number density n_d(r, z, a). Depends on the grain sizes, radii, and altitude. 
+
+        Notes:
+        -----
+        3D array (len(nb_sizes), len(r), len(z)). Units: [cm-3]
+        Example:
+        ------- 
+            - call n_d[1][2] for densities at third radius and for second grain species.
+	    """	
+        mass = self.dust.grainmass()
+        dens = self.density_d(x1, x2, x3)
+        for i in range(len(mass)):
+            dens[i] = dens[i]/mass[i]
+            
+        return dens
+
+    def solution(self, mu0,r,mu):
+        """ E)
+	    Return solution
+
+        Notes:
+        -----
+	    """	
+        return mu0**3-mu0*(1-r/self.r_centri)-mu*(r/self.r_centri)
 
 
 

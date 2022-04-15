@@ -20,7 +20,7 @@ from matplotlib.colors import LogNorm
 from chemdiskpy.constants.constants import autocm
 
 
-def density2D(mass):
+def density2D(mass1, mass2=None):
     grid = pd.read_table('thermal/amr_grid.inp', engine='python', skiprows=5)
     head = grid.columns
     nr = int(grid.columns[0].split("  ")[0])
@@ -46,11 +46,11 @@ def density2D(mass):
         plt.xlabel(r'r [au]', fontsize = 17)
         plt.ylabel(r'z [au]', fontsize = 17, labelpad=-7.4)
         
-        numdens = dens[0]/mass[0]
+        numdens = dens[0]#/mass1[0]
         t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=1e-80, vmax=1e-1))
         clr = plt.colorbar(t)
         clr.set_label(r'$n_\mathrm{d}$ [cm${-3}$]', labelpad=-33, y=1.06, rotation=0, fontsize = 16)
-        plt.xlim(1, 200)
+        #plt.xlim(1, 500)
         plt.ylim(-300, 300)
         ax.tick_params(labelsize=17)
         clr.ax.tick_params(labelsize=16) 
@@ -62,17 +62,18 @@ def density2D(mass):
             ax = fig.add_subplot(111)
             plt.xlabel(r'r [au]', fontsize = 17)
             plt.ylabel(r'z [au]', fontsize = 17, labelpad=-7.4)
-            numdens = dens[ispec]/mass[ispec]
-            t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=1e-80, vmax=1e-1))
+            numdens = dens[ispec]#/mass1[ispec]
+            t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=numdens[:,:].min(), vmax=numdens[:,:].max()))
             clr = plt.colorbar(t)
             clr.set_label(r'$n_\mathrm{d}$ [cm${-3}$]', labelpad=-33, y=1.06, rotation=0, fontsize = 16)
-            plt.xlim(1, 200)
+            #plt.xlim(1, 500)
             plt.ylim(-300, 300)
             ax.tick_params(labelsize=17)
             clr.ax.tick_params(labelsize=16) 
             props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
             ax.text(0.90, 0.95, 'bin: {}'.format(ispec+1), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
             plt.show()
+
 
 def temperature2D():
     grid = pd.read_table('thermal/amr_grid.inp', engine='python', skiprows=5)
@@ -105,7 +106,7 @@ def temperature2D():
         ax.tick_params(labelsize=17)
         clr.ax.tick_params(labelsize=16) 
         plt.xlim(1, 200)
-        plt.ylim(-50, 50)
+        plt.ylim(-100, 100)
         plt.show()
     else:
         for ispec in range(nbspecies):
@@ -121,7 +122,7 @@ def temperature2D():
             props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
             ax.text(0.90, 0.95, 'bin: {}'.format(ispec+1), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
             plt.xlim(1, 200)
-            plt.ylim(-50, 50)
+            plt.ylim(-100, 100)
             plt.show()
 
 def midplane_temp():

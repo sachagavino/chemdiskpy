@@ -24,7 +24,12 @@ class Model:
         #     nbspecies, n1, n2, n3 = self.grid.dustdensity[i].shape
         #     self.grid.temperature[i] = self.grid.temperature[i].reshape((nbspecies, n1, n2, n3))
 
-        nbspecies, nr, nt, nph = self.grid.dustdensity[0].shape
+        
+        nb, nr, nt, nph = self.grid.dustdensity[0].shape
+        nbspecies = 0
+        for istruct in range(len(self.grid.dustdensity)):
+            nbspecies += len(self.grid.dustdensity[istruct])
+
         #self.grid.temperature[0] = self.grid.temperature[0].reshape((nbspecies, n1, n2, n3))
         self.grid.temperature[0] = np.reshape(self.grid.temperature[0], (nbspecies, nph, nt, nr))
         #self.grid.temperature[1] = np.reshape(self.grid.temperature[1], (nbspecies, nph, nt, nr)) #if two structures

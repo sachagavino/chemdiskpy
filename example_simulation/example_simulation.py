@@ -10,8 +10,8 @@ nr, ntheta, nphi = 300, 301, 2
 rin, rout= 1, 500
 dtogas = 1e-2
 star_mass = 1.5
-disk_dust_mass = 1e-4 #total dust disk mass
-env_dust_mass = 1e-5 #total dust envelope mass
+disk_dust_mass = 1e-4 #total disk dust mass
+env_dust_mass = 1e-5 #total envelope dust mass
 q_c = 12
 q_exp = 0.4
 
@@ -31,14 +31,14 @@ m.add_isrf(cut=2.e-1, d78=True, vdb82=True)
 
 # # -----CREATE DUST DENSITIES-----
 dust_disk = dust.DustDistrib(rsingle=0.1, amin=5.000e-03, amax=1.000e+03, nb_sizes=1, rho_m=3.) #microns
-dust_envelope = dust.DustDistrib(rsingle=0.1, amin=5.000e-03, amax=1.000e+03, nb_sizes=1, rho_m=3.) #microns
+dust_envelope = dust.DustDistrib(rsingle=0.1, amin=5.000e-03, amax=1.000e+03, nb_sizes=1, rho_m=3.) #microns both structures has the same dust species.
 frac = dust_disk.massfraction()
 sizes = dust_disk.sizes()
 mass = dust_disk.grainmass()
 
 
 m.add_disk(dust=dust_disk, rin=rin, rout=rout, Tmidplan_ref=15, star_mass=star_mass, q_exp= q_exp, dtogas=dtogas, dust_mass=disk_dust_mass, q_c=q_c, settling=True, coordsystem='spherical')
-m.add_envelope(dust=dust_envelope, rmin=1, rmax=1400, dust_mass=env_dust_mass, dtogas=dtogas)
+m.add_envelope(dust=dust_envelope, rmin=1, rmax=1400, dust_mass=env_dust_mass, dtogas=dtogas, coordsystem='spherical')
 
 # -----RUN THERMAL-----
 m.thermal(run=True, nphot = 1e6, \

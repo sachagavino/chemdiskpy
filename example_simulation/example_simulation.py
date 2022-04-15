@@ -5,13 +5,13 @@ import chemdiskpy.plotting.plot as plot
 m = modeling.Structure()  
 
 
-#-----DISK PARAMETERS
+#-----PARAMETERS
 nr, ntheta, nphi = 300, 301, 2
 rin, rout= 1, 500
 dtogas = 1e-2
 star_mass = 1.5
-dust_mass = 1e-4 #total dust disk mass
-env_mass = 1e-3 #total mass
+disk_dust_mass = 1e-4 #total dust disk mass
+env_dust_mass = 1e-5 #total dust envelope mass
 q_c = 12
 q_exp = 0.4
 
@@ -37,8 +37,8 @@ sizes = dust_disk.sizes()
 mass = dust_disk.grainmass()
 
 
-m.add_disk(dust=dust_disk, rin=rin, rout=rout, Tmidplan_ref=15, star_mass=star_mass, q_exp= q_exp, dtogas=dtogas, dust_mass=dust_mass, q_c=q_c, settling=True, coordsystem='spherical')
-m.add_envelope(dust=dust_envelope, rmin=1, rmax=1400, dtogas=dtogas)
+m.add_disk(dust=dust_disk, rin=rin, rout=rout, Tmidplan_ref=15, star_mass=star_mass, q_exp= q_exp, dtogas=dtogas, dust_mass=disk_dust_mass, q_c=q_c, settling=True, coordsystem='spherical')
+m.add_envelope(dust=dust_envelope, rmin=1, rmax=1400, dust_mass=env_dust_mass, dtogas=dtogas)
 
 # -----RUN THERMAL-----
 m.thermal(run=True, nphot = 1e6, \

@@ -12,7 +12,8 @@ nz_chem = 64                                # number of spatial points for chemi
 ################################################################################################################
 #                                             disk physical structure                                          #
 ################################################################################################################
-disk_mass = 0.15                            # mass of the disk in Solar mass
+disk_mass = 0.15                            # total mass of the disk in Solar mass
+disk_dust_mass = 1.7e-3                          # Total dust mass in the disk in solar mass
 ref_radius = 1.000e+02                      # reference radius for parametric laws
 cut_radius = 5.000e+02                      # tapered edge radius [au]
 rin = 1.000e+00                             # inner radius [au]
@@ -29,9 +30,9 @@ rmax = 1.000e+2                             # inner radius [au]
 nr = 4
 ntheta = 65
 nphi =  2
-r_centri = 1.000e+2                         # centrifugal radius (critical radius inside of which the envelope flattens) [au]
+r_centri = 1.000e+2                    # centrifugal radius (critical radius inside of which the envelope flattens) [au]
 acc_rate = 6e-6
-env_mass = 1.000e-3                         # mass of the envelope in Solar mass
+dust_env_mass = 1.000e-5                         # total dust mass of the envelope in Solar mass
 cavpl = 1.100e0                             # opening angle and shape of the outflow
 cav_fact = 2.000e-2                         # factor of decrease of the density in the cavity
 cavz0 = 1.000e1                             # [au]
@@ -59,7 +60,6 @@ amax = 1.000e+03                            # max grain size (not read if nb_siz
 asingle = 1.000e-05                         # size of small grains if nb_sizes = 1 [microns]
 cst_norm = 7.41e-26                         # normalization constant (7.41e-26 in the case of MRN distribution as in MRN1977)
 cutoff = 0.000e+00                          # whether yes or no you want a cutoff at cut radius. 1="cutoff", 0="no cutoff"
-dust_mass = 1.7e-3                          # Total dust mass in the disk in solar mass
 q_c = 6                                     # Extinction efficiency at resonance
 ################################################################################################################
 #                                                      STAR                                                    #

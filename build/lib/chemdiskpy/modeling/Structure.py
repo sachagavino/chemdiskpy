@@ -39,7 +39,7 @@ class Structure(Model):
     def add_disk(self, ref_radius=p.ref_radius, rin=p.rin, rout=p.rout, star_mass=p.star_mass, disk_mass=p.disk_mass, h0=p.h0, \
                        sigma_gas_ref=p.sigma_gas_ref, Tmidplan_ref=p.Tmidplan_ref, Tatmos_ref=p.Tatmos_ref, sigma_t = p.sigma_t, q_exp=p.q_exp,  \
                        d_exp=p.d_exp, p_exp=p.p_exp, dtogas=p.dtogas, rho_m=p.rho_m, schmidtnumber=p.schmidtnumber, alpha=p.alpha, \
-                       settfact=p.settfact, dust_mass=p.dust_mass, q_c = p.q_c, dust=None, \
+                       settfact=p.settfact, dust_mass=p.disk_dust_mass, q_c = p.q_c, dust=None, \
                        settling=True, isothermal=False, dust_density='g.cm-2', coordsystem='spherical'):
         self.disk = Disk(ref_radius=ref_radius, rin=rin, rout=rout, star_mass=star_mass, disk_mass=disk_mass, h0=h0, \
                        sigma_gas_ref=sigma_gas_ref, Tmidplan_ref=Tmidplan_ref, Tatmos_ref=Tatmos_ref, sigma_t=sigma_t, q_exp=q_exp,  \
@@ -54,7 +54,7 @@ class Structure(Model):
     def add_nautilusdisk(self, ref_radius=p.ref_radius, rin=p.rin, rout=p.rout, star_mass=p.star_mass, disk_mass=p.disk_mass, h0=p.h0, \
                        sigma_gas_ref=p.sigma_gas_ref, Tmidplan_ref=p.Tmidplan_ref, Tatmos_ref=p.Tatmos_ref, sigma_t = p.sigma_t, q_exp=p.q_exp,  \
                        d_exp=p.d_exp, p_exp=p.p_exp, dtogas=p.dtogas, rho_m=p.rho_m, schmidtnumber=p.schmidtnumber, alpha=p.alpha, \
-                       settfact=p.settfact, max_H=p.max_H, nz_chem=p.nz_chem, dust_mass=p.dust_mass, q_c = p.q_c, dust=None, \
+                       settfact=p.settfact, max_H=p.max_H, nz_chem=p.nz_chem, dust_mass=p.disk_dust_mass, q_c = p.q_c, dust=None, \
                        settling=True, isothermal=False, dust_density='g.cm-2', coordsystem='nautilus'):
         self.disk = Disk(ref_radius=ref_radius, rin=rin, rout=rout, star_mass=star_mass, disk_mass=disk_mass, h0=h0, \
                        sigma_gas_ref=sigma_gas_ref, Tmidplan_ref=Tmidplan_ref, Tatmos_ref=Tatmos_ref, sigma_t=sigma_t, q_exp=q_exp,  \
@@ -68,10 +68,10 @@ class Structure(Model):
         self.grid.add_hg_chem(self.disk.scaleheight(self.grid.rchem))
         self.grid.add_avz(self.disk.av_z(self.grid.lam, self.grid.dustdensity_chem[0], self.grid.rchem, self.grid.zchem))
 
-    def add_envelope(self,rmin=p.rmin, rmax=p.rmax, acc_rate=p.acc_rate, star_mass=p.star_mass, env_mass=p.env_mass, dtogas=p.dtogas, \
+    def add_envelope(self,rmin=p.rmin, rmax=p.rmax, acc_rate=p.acc_rate, star_mass=p.star_mass, dust_mass=p.dust_env_mass, dtogas=p.dtogas, \
                      cavpl=p.cavpl, cav_fact=p.cav_fact, cavz0=p.cavz0, dust=None, dust_density='g.cm-2', coordsystem='spherical'):
         self.envelope = Envelope(rmin=rmin, rmax=rmax, r_centri=p.r_centri, \
-                       acc_rate=acc_rate, star_mass=star_mass, env_mass=env_mass, \
+                       acc_rate=acc_rate, star_mass=star_mass, dust_mass=dust_mass, \
                        dtogas=dtogas, cavpl=cavpl, cav_fact=cav_fact, cavz0=cavz0, dust=dust, dust_density=dust_density, coordsystem=coordsystem)
 
         if (dust != None):

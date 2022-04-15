@@ -31,14 +31,14 @@ import parameters as p
 #___________________________________________
 class Envelope:
     def __init__(self, rmin=p.rmin, rmax=p.rmax, r_centri=p.r_centri, \
-                       acc_rate=p.acc_rate, star_mass=p.star_mass, env_mass=p.env_mass, dtogas=p.dtogas,  \
+                       acc_rate=p.acc_rate, star_mass=p.star_mass, dust_mass=p.dust_env_mass, dtogas=p.dtogas,  \
                        cavpl=p.cavpl, cav_fact=p.cav_fact, cavz0=p.cavz0, dust=None, dust_density='g.cm-2', coordsystem='spherical'):
         self.rmin=rmin
         self.rmax=rmax
         self.r_centri=r_centri*autocm
         self.acc_rate=acc_rate
         self.star_mass=star_mass
-        self.env_mass=env_mass
+        self.dust_mass=dust_mass
         self.dtogas = dtogas
         self.cavpl=cavpl
         self.cav_fact=cav_fact
@@ -94,10 +94,10 @@ class Envelope:
             rho[(rt > self.rmax*autocm) ^ (rt < self.rmin*autocm)] = 0e0
                 
             if x2.max() > np.pi/2:
-                mdot = (self.env_mass*M_sun)/(2*np.pi*trapz(trapz(rho*rt**2*np.sin(tt),tt,axis=1), \
+                mdot = ((self.dust_mass/self.dtogas)*M_sun)/(2*np.pi*trapz(trapz(rho*rt**2*np.sin(tt),tt,axis=1), \
                         rt[:,0,:],axis=0))[0]
             else:
-                mdot = (self.env_mass*M_sun)/(4*np.pi*trapz(trapz(rho*rt**2*np.sin(tt),tt,axis=1), \
+                mdot = ((self.dust_mass/self.dtogas)*M_sun)/(4*np.pi*trapz(trapz(rho*rt**2*np.sin(tt),tt,axis=1), \
                         rt[:,0,:],axis=0))[0]
             rho *= mdot
 
@@ -167,24 +167,7 @@ class Envelope:
 
 
 
-#---------------_________EXAMPLE OF HEADER FROM NUMPY
-"""
-Return the standard deviation of the array elements along the given axis.
-
-Refer to `numpy.std` for full documentation.
-
-See Also
---------
-numpy.std
-
-Notes
------
-This is the same as `ndarray.std`, except that where an `ndarray` would
-be returned, a `matrix` object is returned instead.
-
-"""
-
-
+#---old envelope:
 
 
 

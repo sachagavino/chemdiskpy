@@ -29,7 +29,7 @@ class Disk:
     def __init__(self, ref_radius=p.ref_radius, rin=p.rin, rout=p.rout, star_mass=p.star_mass, disk_mass=p.disk_mass, h0=p.h0, \
                        sigma_gas_ref=p.sigma_gas_ref, Tmidplan_ref=p.Tmidplan_ref, Tatmos_ref=p.Tatmos_ref, sigma_t = p.sigma_t, q_exp=p.q_exp,  \
                        d_exp=p.d_exp, p_exp=p.p_exp, dtogas=p.dtogas, rho_m=p.rho_m, schmidtnumber=p.schmidtnumber, alpha=p.alpha, \
-                       settfact=p.settfact, max_H=p.max_H, nz_chem=p.nz_chem, dust_mass=p.dust_mass, q_c = p.q_c, dust=None, \
+                       settfact=p.settfact, max_H=p.max_H, nz_chem=p.nz_chem, dust_mass=p.disk_dust_mass, q_c = p.q_c, dust=None, \
                        settling=True, isothermal=False, dust_density='g.cm-2', coordsystem='spherical'):                      
         self.ref_radius = ref_radius
         self.rin = rin

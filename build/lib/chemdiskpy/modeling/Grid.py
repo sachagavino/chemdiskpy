@@ -16,6 +16,7 @@ class Grid:
         self.dustdensity = []
         self.gasdensity_chem = []
         self.dustdensity_chem = []
+        self.dustdensity_single_chem = []
         self.hg_chem = []
         self.tgas_chem = []
         self.temperature = []
@@ -23,6 +24,7 @@ class Grid:
         self.avz = []
         self.stars = []
         self.isrf = []
+        self.dust = []
 
     def add_star(self, star):
         self.stars.append(star)
@@ -45,6 +47,9 @@ class Grid:
     def add_dustdensity_chem(self, density):
         self.dustdensity_chem.append(density)
 
+    def add_dustdensity_single_chem(self, density):
+        self.dustdensity_single_chem.append(density)
+
     def add_gasdensity_chem(self, density):
         self.gasdensity_chem.append(density)
 
@@ -56,6 +61,9 @@ class Grid:
 
     def add_avz(self, av_z):
         self.avz.append(av_z)
+
+    def add_dust(self, dust):
+        self.dust.append(dust)
         
     def set_cartesian_grid(self, xmin, xmax, nx):
         #w1, w2, w3 provide grid with coordinates using the center of each cell.

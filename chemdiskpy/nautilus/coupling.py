@@ -5,7 +5,7 @@ def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'same') / w
 
 def dust_temperature(temp_radmc3d, rchem, zchem, d, theta, hg):
-    nbspecies, nph, nt, nr = temp_radmc3d.shape
+    nbspecies, nz, ny, nx = temp_radmc3d.shape
     #print('temp shape coupl ', nbspecies, nr, nt, nph)
     hhg, zz = np.meshgrid(hg, zchem, indexing='ij')
     zz = hhg*zz
@@ -28,7 +28,31 @@ def dust_temperature(temp_radmc3d, rchem, zchem, d, theta, hg):
     temp_naut_smooth[:, :, 0:2] = temp_naut[:, :, 0:2]  #clean the boundary effects
     temp_naut_smooth[:, :, -2:] = temp_naut[:, :, -2:]    
 
-    return temp_naut_smooth  
+    return temp_naut_smooth 
+
+def dust_temperature_single(temp_radmc3d, rchem, zchem, d, theta, hg):
+    nz, ny, nx = temp_radmc3d.shape
+
+    hhg, zz = np.meshgrid(hg, zchem, indexing='ij')
+    zz = hhg*zz
+    temp_naut = np.ones((len(rchem), len(zchem)))
+    temp_naut_smooth = np.ones((len(rchem), len(zchem)))
+
+    for idx, r in enumerate(rchem):
+        for alt in range(len(zchem)):
+            d_pt = np.sqrt(r**2 + zz[idx, alt]**2)  #convert from cartesian to spherical
+            theta_pt = np.arccos(zz[idx, alt]/d_pt) #convert from cartesian to spherical
+            closest_d = min(enumerate(d), key=lambda x: abs(x[1]-d_pt)) #find closest grid point
+            closest_t = min(enumerate(theta), key=lambda x: abs(x[1]-theta_pt)) #find closest grid point
+            temp_naut[idx, alt] = temp_radmc3d[0, closest_t[0], closest_d[0]] 
+
+    #SMOOTHING TEMPERATURE PROFILE
+    for idx in range(len(rchem)):
+        temp_naut_smooth[idx, :] = moving_average(temp_naut[idx, :], 5) #average the values over a rolling window of 5 points.
+    temp_naut_smooth[:, 0:2] = temp_naut[:, 0:2]  #clean the boundary effects
+    temp_naut_smooth[:, -2:] = temp_naut[:, -2:]    
+
+    return temp_naut_smooth   
 
 def local_field():
     pass

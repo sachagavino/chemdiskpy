@@ -268,10 +268,11 @@ def dust_density(density, gridstyle="normal"):
     Args: density
     '''
     nstructures = len(density)
+    print('number of structures (disk, envelope...): ', nstructures, '\n')
     nspecies = 0
     for istruc in range(nstructures):
         nspecies += len(density[istruc]) #nb of species in all structures
-    print('number of grain species: ', nspecies)
+    print('number of grain species: ', nspecies, '\n')
 
     if (gridstyle == "normal"):
         nx, ny, nz = density[0][0].shape
@@ -283,7 +284,6 @@ def dust_density(density, gridstyle="normal"):
     f.write("{0:d}\n".format(nspecies))
 
     for istruc in range(nstructures): #loop over structures (disk, envelope...)
-        print('structure nb :', istruc, '\n')
         for ispec in range(len(density[istruc])): #loop over the dust species within the given structure.
             if (gridstyle == "normal"):
                 for iz in range(nz):

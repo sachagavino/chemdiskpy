@@ -219,17 +219,24 @@ class Disk:
         #print(sig)
         if self.sigma_gas_ref != None:
             sigma_di0 = fraction*self.dtogas*self.sigma_gas_ref
+            sigma_single0 = self.dtogas*self.sigma_gas_ref
         else:
             self.sigma_d0 = (2-self.p_exp)*self.dust_mass*M_sun/(2*np.pi*(self.ref_radius)**(self.p_exp)) / \
                        (self.rout**(-self.p_exp+2) - self.rin**(-self.p_exp+2)) /autocm**2
             sigma_di0 = fraction*self.sigma_d0
+            sigma_single0 = self.sigma_d0
  
         for s in sigma_di0:
             sig = s*(r/self.ref_radius)**(-self.p_exp)
             sig[(r >= self.rout) ^ (r <= self.rin)] = 0e0 # In case sigma is ouside radius boundaries
             sigmad.append(sig)
+        
+        sig_single = sigma_single0*(r/self.ref_radius)**(-self.p_exp)
+        sig_single[(r >= self.rout) ^ (r <= self.rin)] = 0e0 # In case sigma is ouside radius boundaries
 
-        return np.array(sigmad)
+        #print(sig_single)
+
+        return np.array(sigmad), sig_single
 
     def scaleheight_d(self, r):
         """ B)
@@ -242,17 +249,21 @@ class Disk:
         hd = []
         hg = self.scaleheight(r)
         sizes = self.dust.sizes() #grain size in microns
+        rsingle = self.dust.rsingle
+
         if self.settling == True:
             sigma_g = self.surfacedensity(r)
             for a in sizes[-1]:
                 stoptime_mid =(np.sqrt(2*np.pi)*a*1e-4*self.rho_m)/sigma_g
-                #hd = hg/(np.sqrt(1 + stoptime_mid*(self.schmidtnumber/self.alpha)))
                 hd.append(hg/(np.sqrt(1 + stoptime_mid*(self.schmidtnumber/self.alpha))))
-            return np.array(hd)
+            stoptime_mid_single =(np.sqrt(2*np.pi)*self.dust.rsingle*1e-4*self.rho_m)/sigma_g
+            hd_single = hg/(np.sqrt(1 + stoptime_mid_single*(self.schmidtnumber/self.alpha)))
+            return np.array(hd), hd_single
+
         if self.settling == False:
             for a in sizes[-1]:
                 hd.append(hg)
-            return np.array(hd)
+            return np.array(hd), hg
             
     def density_d(self, x1, x2, x3=None):
         """ C)
@@ -263,26 +274,32 @@ class Disk:
         3D array (len(r), len(nb_sizes), len(z)). Units: [g.cm-3]
 	    """	
         rhod = []
+        rhod_single = []
         if self.coordsystem =='spherical':
             rt, tt, pp = np.meshgrid(x1*autocm, x2, x3, indexing='ij')
             rr = rt*np.sin(tt)
             zz = rt*np.cos(tt)
-            sigmad = self.surfacedensity_d(rr/autocm)
-            hd = self.scaleheight_d(rr/autocm)
+            sigmad, sigmad_single = self.surfacedensity_d(rr/autocm)
+            hd, hd_single = self.scaleheight_d(rr/autocm)
             rhod = np.ones( (len(hd), len(x1), len(x2), len(x3)))
+            rhod_single = np.ones((len(x1), len(x2), len(x3)))
             for i in range(len(hd)): #len(hd) is equal to the number of grain sizes
                 rhod[i, :, :, :] = (sigmad[i,:,:,:]/(np.sqrt(2*np.pi)*hd[i,:,:,:]))*np.exp(-(zz[:,:,:]**2)/(2*hd[i,:,:,:]**2))
 
 
         if self.coordsystem =='nautilus':
             rr, zz = np.meshgrid(x1*autocm, x2, indexing='ij')
-            sigmad = self.surfacedensity_d(rr/autocm)
+            sigmad, sigmad_single = self.surfacedensity_d(rr/autocm)
             hg = self.scaleheight(rr/autocm)
-            hd = self.scaleheight_d(rr/autocm)
-            rhod = np.ones( (len(hd), len(x1), len(x2)))
+            hd, hd_single = self.scaleheight_d(rr/autocm)
+            rhod = np.ones((len(hd), len(x1), len(x2)))
+            rhod_single = np.ones((len(x1), len(x2)))
             zz = hg*zz
             for i in range(len(hd)): #len(hd) is equal to the number of grain sizes
                 rhod[i, :, :] = (sigmad[i]/(np.sqrt(2*np.pi)*hd[i]))*np.exp(-((zz)**2)/(2*hd[i]**2))
+
+            rhod_single[:, :] = (sigmad_single/(np.sqrt(2*np.pi)*hd_single))*np.exp(-((zz)**2)/(2*hd_single**2))
+            self.rhod_single = rhod_single
 
         if self.dust_density == 'g.cm-2':
             return rhod
@@ -296,14 +313,32 @@ class Disk:
         3D array (len(nb_sizes), len(r), len(z)). Units: [cm-3]
         Example:
         ------- 
-            - call n_d[1][2] for densities at third radius and for second grain species.
+            - call n_d[1, 2, :] for densities at third radius and for second grain species.
 	    """	
         mass = self.dust.grainmass()
         dens = self.density_d(x1, x2, x3)
+
         for i in range(len(mass)):
             dens[i] = dens[i]/mass[i]
-            
+        
         return dens
+
+    def numberdensity_d_single(self, x1, x2, x3=None):
+        """ D)
+	    Return dust number density n_d(r, z) in case of single grain for chemistry. Usefull if radmc3d uses multiple sizes and nautilus uses a single one. 
+
+        Notes:
+        -----
+        2D array (len(r), len(z)). Units: [cm-3]. If nb_species = 1, then numberdensity_d_single[r, z] = numberdensity_d[0, r, z]. We use two seperate functions in case nb_species > 1 and the user needs one size for chemistry.
+
+
+	    """	
+        mass_single = self.dust.grainmass_single()
+        dens_single = self.rhod_single
+
+        dens_single = dens_single/mass_single
+
+        return dens_single
 
 
     def q_ext(self, lam, A=2, q_c=4):

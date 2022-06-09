@@ -9,6 +9,8 @@ def parameters(path, resolution, phase=1, \
                is_dust_1D=1, \
                is_grain_reactions=1, \
                is_h2_adhoc_form=0, \
+               is_h2_formation_rate=1, \
+               height_h2formation=1, \
                is_absorption_h2=1, \
                is_absorption_co=2, \
                is_absorption_n2=1, \
@@ -367,7 +369,7 @@ def static(path, z, hg, gas_density, T_gas, av_z, T_dust, dust_density, r_grain,
     Tgas = T_gas
     avz = av_z
     diff_coef = np.zeros(len(z))
-    Tdust = T_dust[0] #ok if 1 size. If several sizes, Tdust will be the surface weigthed temperature
+    Tdust = T_dust #ok if 1 size. If several sizes, Tdust will be the surface weigthed temperature
     avnhfact = avnh_fact
     rgrain = r_grain*1e-4*np.ones(len(z))
     inv_ab = gas_density/dust_density

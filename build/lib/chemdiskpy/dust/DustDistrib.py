@@ -13,6 +13,7 @@ from .. constants.constants import mu, amu
 
 
 class DustDistrib:
+    
         def __init__(self, rsingle=1.000e-01 , amin=5.000e-03, amax=1.000e+03, \
                            nb_sizes=1, d_exp=3.5, rho_m=2.5, dtogas=0.01, cst_norm=7.41e-26, ext_eff=4):
             self.d_exp = d_exp
@@ -23,7 +24,7 @@ class DustDistrib:
             self.amax = amax
             self.cst_norm = cst_norm
             self.nb_sizes = nb_sizes
-            self.rsingle = rsingle
+            self.rsingle = rsingle #used for chemistry
 
         def sizes(self):
             """ A)
@@ -53,12 +54,23 @@ class DustDistrib:
             """
             a = self.sizes()
             if self.nb_sizes == 1:
-                single_mass = ((4.*np.pi)/3.)*self.rho_m*(a[-1]*1e-4)**3
+                mass = ((4.*np.pi)/3.)*self.rho_m*(a[-1]*1e-4)**3
                 
             if self.nb_sizes > 1:
-                single_mass = ((4.*np.pi)/3.)*self.rho_m*(a[-1]*1e-4)**3
+                mass = ((4.*np.pi)/3.)*self.rho_m*(a[-1]*1e-4)**3
 
-            return single_mass
+            return mass
+
+        def grainmass_single(self):
+            """ B)
+            Create mass from single grain (rsingle). 
+            Returns
+            -------
+                Numpy float. Units: gram
+            """
+            mass_single = ((4.*np.pi)/3.)*self.rho_m*(self.rsingle*1e-4)**3
+
+            return mass_single
 
         def massfraction(self):
             """ C)

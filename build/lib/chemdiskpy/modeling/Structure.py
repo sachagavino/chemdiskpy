@@ -49,6 +49,7 @@ class Structure(Model):
 
         if (dust != None):
             self.grid.add_dustdensity(self.disk.density_d(self.grid.r, self.grid.theta, self.grid.phi))
+            #self.grid.add_dust(dust)
 
 
     def add_nautilusdisk(self, ref_radius=p.ref_radius, rin=p.rin, rout=p.rout, star_mass=p.star_mass, disk_mass=p.disk_mass, h0=p.h0, \
@@ -63,6 +64,7 @@ class Structure(Model):
                        settling=settling, isothermal=isothermal, dust_density=dust_density, coordsystem=coordsystem)
 
         self.grid.add_dustdensity_chem(self.disk.numberdensity_d(self.grid.rchem, self.grid.zchem))
+        self.grid.add_dustdensity_single_chem(self.disk.numberdensity_d_single(self.grid.rchem, self.grid.zchem))
         self.grid.add_gasdensity_chem(self.disk.numberdensity(self.grid.rchem, self.grid.zchem))
         self.grid.add_gastemperature_chem(self.disk.temp_altitude(self.grid.rchem, self.grid.zchem))
         self.grid.add_hg_chem(self.disk.scaleheight(self.grid.rchem))

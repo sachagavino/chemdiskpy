@@ -369,7 +369,7 @@ def static(path, z, hg, gas_density, T_gas, av_z, T_dust, dust_density, r_grain,
     Tgas = T_gas
     avz = av_z
     diff_coef = np.zeros(len(z))
-    Tdust = T_dust #ok if 1 size. If several sizes, Tdust will be the surface weigthed temperature
+    Tdust = T_dust #if 1 size. If several sizes, Tdust will be the surface weigthed temperature
     avnhfact = avnh_fact
     rgrain = r_grain*1e-4*np.ones(len(z))
     inv_ab = gas_density/dust_density

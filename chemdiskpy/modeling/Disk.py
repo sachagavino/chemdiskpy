@@ -73,6 +73,7 @@ class Disk:
         G) density_gauss(self, x1, x2, x3=None)
         H) density(self, x1, x2, x3=None)
         I) numberdensity(self, x1, x2, x3=None)
+        J) viscous_accretion_heating(self)
     """
 
     def scaleheight(self, r):
@@ -90,7 +91,7 @@ class Disk:
             hgas = h0*(r/(self.ref_radius))**h_exp
         else:
             if self.h0 != None:
-                hgas = self.h0*(r/(self.ref_radius))**h_exp
+                hgas = self.h0*autocm*(r/(self.ref_radius))**h_exp
         return hgas
 
 
@@ -163,10 +164,25 @@ class Disk:
 
         Notes
         -----
-        If vertically isothermal, the profile is Gaussian. If not, the density can be computed iteratively and the profile is not Gaussian.
+        The Gaussian vertical profile is an isothermal approximation. For a non-vertically isothermal 
+        profile, the density can be computed iteratively. The profile slightly deviates from a Gaussian profile.
+        This is done for cartesian coordinates only for now, will be done for spherical structure in a future update. 
         """
         if self.coordsystem == "spherical":
-            pass
+            rhog = np.ones((len(x1), len(x2), len(x3)))
+
+            rt, tt, pp = np.meshgrid(x1*autocm, x2, x3, indexing='ij')
+            rr = rt*np.sin(tt)
+            zz = rt*np.cos(tt)
+            zzmax = self.rout*autocm*np.cos(tt)
+            border = np.greater_equal(abs(zzmax), abs(zz))*1 #used to spherically cut the disk in case the grid is larger than the disk outer radius e.g. if an envelope is present
+
+            sigma_g = self.surfacedensity(rr/autocm)
+            hg = self.scaleheight(rr/autocm)
+
+            rhog = (sigma_g/(np.sqrt(2*np.pi)*hg))*np.exp(-(zz[:,:,:]**2)/(2*hg**2))*border
+
+
         if self.coordsystem == "nautilus":
             omega2 = self.omega2(x1)
             sigma_g = self.surfacedensity(x1)
@@ -182,8 +198,7 @@ class Disk:
                 rhog[r] = np.exp(rhog[r])
                 maximum=np.amax(rhog[r])
                 rhog[r] = (rhog[r]*midplane_dens[r])/maximum
-
-            return rhog
+        return rhog
         
     def numberdensity(self, x1, x2, x3=None):
         """ I)
@@ -196,6 +211,32 @@ class Disk:
         ng = self.density(x1, x2, x3)/(mu*amu)            
         return ng
 
+    def viscous_accretion_heating(self, acc_rate, max_h, x1, x2, x3=None):
+        """ I)
+        Return the viscous accretion heating. Unit: erg.cm^-3.s-1. The density is computed assumging hydrostatic equilibrium.
+
+        Notes
+        -----
+        If vertically isothermal, the profile is Gaussian. If not, the density can be computed iteratively and the profile is not Gaussian.
+        """
+        if self.coordsystem == "spherical":
+            yrtosec = 31536000 # number of second in a year. 
+            q_visc = np.ones((len(x1), len(x2), len(x3)))
+            rt, tt, pp = np.meshgrid(x1*autocm, x2, x3, indexing='ij')
+            rr = rt*np.sin(tt)
+            zz = rt*np.cos(tt)
+            zzmax = self.rout*autocm*np.cos(tt)
+            sigma_g = self.surfacedensity(rr/autocm)
+            hg = self.scaleheight(rr/autocm)
+            omega2 = self.omega2(rr/autocm)
+            border_max = np.greater_equal(abs(zzmax), abs(zz))*1  # make border at rout
+            border_h = np.greater_equal(abs(max_h*hg), abs(zz))*1 #make border at max_h scale height. 
+            border = border_max*border_h
+            q_visc = ((3*acc_rate*M_sun*omega2)/(4*np.pi*np.sqrt(2*np.pi)*hg*yrtosec))*np.exp(-(zz[:,:,:]**2)/(2*hg**2))*border
+            #q_visc[q_visc==0.0] = 1e-30         
+        return q_visc
+
+        
 
     """
     The following methods give the physical quantities related to the grains in the disk.
@@ -228,13 +269,11 @@ class Disk:
  
         for s in sigma_di0:
             sig = s*(r/self.ref_radius)**(-self.p_exp)
-            sig[(r >= self.rout) ^ (r <= self.rin)] = 0e0 # In case sigma is ouside radius boundaries
+            sig[(r >= self.rout) ^ (r <= self.rin)] = 0e0 # In case sigma is outside disk outer boundaries
             sigmad.append(sig)
         
         sig_single = sigma_single0*(r/self.ref_radius)**(-self.p_exp)
-        sig_single[(r >= self.rout) ^ (r <= self.rin)] = 0e0 # In case sigma is ouside radius boundaries
-
-        #print(sig_single)
+        sig_single[(r >= self.rout) ^ (r <= self.rin)] = 0e0 # In case sigma is outside disk outer boundaries
 
         return np.array(sigmad), sig_single
 
@@ -279,12 +318,14 @@ class Disk:
             rt, tt, pp = np.meshgrid(x1*autocm, x2, x3, indexing='ij')
             rr = rt*np.sin(tt)
             zz = rt*np.cos(tt)
+            zzmax = self.rout*autocm*np.cos(tt)
             sigmad, sigmad_single = self.surfacedensity_d(rr/autocm)
             hd, hd_single = self.scaleheight_d(rr/autocm)
             rhod = np.ones( (len(hd), len(x1), len(x2), len(x3)))
             rhod_single = np.ones((len(x1), len(x2), len(x3)))
+            border = np.greater_equal(abs(zzmax), abs(zz))*1 #used to spherically cut the disk in case the grid is larger than the disk outer radius e.g. if an envelope is present. *1 to convert boolean to 0,1 values.
             for i in range(len(hd)): #len(hd) is equal to the number of grain sizes
-                rhod[i, :, :, :] = (sigmad[i,:,:,:]/(np.sqrt(2*np.pi)*hd[i,:,:,:]))*np.exp(-(zz[:,:,:]**2)/(2*hd[i,:,:,:]**2))
+                rhod[i, :, :, :] = (sigmad[i,:,:,:]/(np.sqrt(2*np.pi)*hd[i,:,:,:]))*np.exp(-(zz[:,:,:]**2)/(2*hd[i,:,:,:]**2))*border
 
 
         if self.coordsystem =='nautilus':

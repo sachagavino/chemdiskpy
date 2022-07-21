@@ -20,7 +20,7 @@ from matplotlib.colors import LogNorm
 from chemdiskpy.constants.constants import autocm
 
 
-def density2D(mass1, mass2=None):
+def density2D(mass1, mass2=None, overlap=False):
     grid = pd.read_table('thermal/amr_grid.inp', engine='python', skiprows=5)
     head = grid.columns
     nr = int(grid.columns[0].split("  ")[0])
@@ -38,41 +38,61 @@ def density2D(mass1, mass2=None):
     zz = dist*np.cos(tt)
 
     dens[dens<=1e-100] = 1e-100
-
-    # #--PLOT FIGURE--
-    if nbspecies == 1:
-        fig = plt.figure(figsize=(10, 8.))
-        ax = fig.add_subplot(111)
-        plt.xlabel(r'r [au]', fontsize = 17)
-        plt.ylabel(r'z [au]', fontsize = 17, labelpad=-7.4)
-        
-        numdens = dens[0]#/mass1[0]
-        t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=1e-80, vmax=1e-1))
-        clr = plt.colorbar(t)
-        clr.set_label(r'$n_\mathrm{d}$ [cm${-3}$]', labelpad=-33, y=1.06, rotation=0, fontsize = 16)
-        #plt.xlim(1, 500)
-        plt.ylim(-300, 300)
-        ax.tick_params(labelsize=17)
-        clr.ax.tick_params(labelsize=16) 
-        plt.show()
-
-    else:
-        for ispec in range(nbspecies):
+    if overlap == False:
+        # #--PLOT FIGURE--
+        if nbspecies == 1:
             fig = plt.figure(figsize=(10, 8.))
             ax = fig.add_subplot(111)
             plt.xlabel(r'r [au]', fontsize = 17)
             plt.ylabel(r'z [au]', fontsize = 17, labelpad=-7.4)
-            numdens = dens[ispec]#/mass1[ispec]
-            t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=numdens[:,:].min(), vmax=numdens[:,:].max()))
+            
+            numdens = dens[0]#/mass1[0]
+            t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=1e-80, vmax=1e-1))
             clr = plt.colorbar(t)
             clr.set_label(r'$n_\mathrm{d}$ [cm${-3}$]', labelpad=-33, y=1.06, rotation=0, fontsize = 16)
             #plt.xlim(1, 500)
-            plt.ylim(-300, 300)
+            #plt.ylim(-300, 300)
             ax.tick_params(labelsize=17)
             clr.ax.tick_params(labelsize=16) 
-            props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-            ax.text(0.90, 0.95, 'bin: {}'.format(ispec+1), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
             plt.show()
+
+        else:
+            for ispec in range(nbspecies):
+                fig = plt.figure(figsize=(8, 8.))
+                ax = fig.add_subplot(111)
+                plt.xlabel(r'r [au]', fontsize = 17)
+                plt.ylabel(r'z [au]', fontsize = 17, labelpad=-7.4)
+                numdens = dens[ispec]#/mass1[ispec]
+                t = plt.pcolor(rr, zz, numdens, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=1e-30, vmax=1e-17))
+                clr = plt.colorbar(t)
+                clr.set_label(r'$\rho_\mathrm{d}$ [g.cm${-3}$]', labelpad=-33, y=1.06, rotation=0, fontsize = 16)
+                plt.xlim(1, 1000)
+                plt.ylim(-1000, 1000)
+                ax.tick_params(labelsize=17)
+                clr.ax.tick_params(labelsize=16) 
+                props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+                ax.text(0.90, 0.95, 'bin: {}'.format(ispec+1), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
+                plt.show()
+
+    if overlap == True:
+        density = np.zeros((nt, nr))
+        fig = plt.figure(figsize=(10, 10.))
+        ax = fig.add_subplot(111)
+        plt.xlabel(r'r [au]', fontsize = 17)
+        plt.ylabel(r'z [au]', fontsize = 17, labelpad=-7.4)
+        numdens = dens#/mass1[ispec]
+        for ispec in range(0, nbspecies):
+            density += numdens[ispec]
+        t = plt.pcolor(rr, zz, density, cmap='gnuplot2', shading='auto', norm=LogNorm(vmin=1e-25, vmax=1e-17))
+        clr = plt.colorbar(t)
+        clr.set_label(r'$\rho_\mathrm{d}$ [g.cm${-3}$]', labelpad=-33, y=1.06, rotation=0, fontsize = 16)
+        #plt.xlim(1, 500)
+        #plt.ylim(-300, 300)
+        ax.tick_params(labelsize=17)
+        clr.ax.tick_params(labelsize=16) 
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax.text(0.90, 0.95, 'env+disk', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize=16, bbox=props)
+        plt.show()
 
 
 def temperature2D():

@@ -262,19 +262,20 @@ def dustopac(opacity):
     f.close()
 
 
-def dust_density(density, gridstyle="normal"):
+def dust_density(density, gridstyle="regular"):
     '''
     Desc: write dust_density.inp
     Args: density
     '''
-    nstructures = len(density)
+    nstructures = len(density) #disk, envelope...
     print('number of structures (disk, envelope...): ', nstructures, '\n')
     nspecies = 0
     for istruc in range(nstructures):
         nspecies += len(density[istruc]) #nb of species in all structures
-    print('number of grain species: ', nspecies, '\n')
+        print('number of species in structure {}: '.format(istruc+1), len(density[istruc]))
+    print('total number of grain species: ', nspecies)
 
-    if (gridstyle == "normal"):
+    if (gridstyle == "regular"):
         nx, ny, nz = density[0][0].shape
         ncells = nx*ny*nz
 
@@ -285,7 +286,7 @@ def dust_density(density, gridstyle="normal"):
 
     for istruc in range(nstructures): #loop over structures (disk, envelope...)
         for ispec in range(len(density[istruc])): #loop over the dust species within the given structure.
-            if (gridstyle == "normal"):
+            if (gridstyle == "regular"):
                 for iz in range(nz):
                     for iy in range(ny):
                         for ix in range(nx):
@@ -299,7 +300,7 @@ def external_rad(isrf):
     Args: Interstellar radiation field
     '''
     nlam = len(isrf[0])
-    factor = 1e0 #artificially multiply by a factor just to see the impact of different ISRF intensities
+    factor = 1e0 #artificially multiply by a factor just to see the impact of different ISRF intensities. Will be removed in future updates
     f = open("thermal/external_source.inp","w")
 
     f.write("2\n")
@@ -310,3 +311,24 @@ def external_rad(isrf):
         f.write("{0:e}\n".format(isrf[1,ilam]*factor))
 
     f.close()
+
+def accretion_heating(x, y, z, accretionheating, gridstyle="regular"):
+    '''
+    Desc: Write viscous accretion heating in the file heatsource.inp 
+    Args: Viscous accretion heating structure
+    '''
+    nx = x.size-1
+    ny = y.size-1
+    nz = z.size-1
+    f = open("thermal/heatsource.inp","w")
+    f.write("1\n")
+    f.write("{0:d}\n".format(nx*ny*nz))
+
+    if (gridstyle == "regular"):
+        for iz in range(nz):
+            for iy in range(ny):
+                for ix in range(nx):
+                    f.write("{0:e}\n".format(accretionheating[ix,iy,iz]))
+
+    f.close()
+

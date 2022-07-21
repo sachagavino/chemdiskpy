@@ -3,13 +3,15 @@ README.md
 pyproject.toml
 setup.py
 chemdiskpy/__init__.py
+chemdiskpy.egg-info/.DS_Store
 chemdiskpy.egg-info/PKG-INFO
 chemdiskpy.egg-info/SOURCES.txt
 chemdiskpy.egg-info/dependency_links.txt
 chemdiskpy.egg-info/top_level.txt
 chemdiskpy/constants/__init__.py
 chemdiskpy/constants/constants.py
-chemdiskpy/dust/DustDistrib.py
+chemdiskpy/dust/CustomDistrib.py
+chemdiskpy/dust/MRNDistrib.py
 chemdiskpy/dust/__init__.py
 chemdiskpy/modeling/Disk.py
 chemdiskpy/modeling/Envelope.py

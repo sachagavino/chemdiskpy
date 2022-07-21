@@ -10,20 +10,40 @@ from .. constants.constants import autocm, M_sun, R_sun
 import matplotlib.pyplot as plt
 
 
-
 class Model:
 
     def __init__(self):
         self.grid = Grid()
 
-    def thermal(self, nphot=1e6, run=True, write=True, **keywords):
+    def thermal(self, nphot=1e4, run=True, write_dens=True, \
+                                           write_grid=True, \
+                                           write_opac=True, \
+                                           write_control=True, \
+                                           write_star=True, \
+                                           write_wave=True, \
+                                           write_mcmono=True, \
+                                           write_ext=True, \
+                                           **keywords):
         """ 
         Notes:
         run MC dust radiative transfer, open the resulting dust temperature as an array and computes the surface-area weigthed temperature. If run == False, user assumes the RADMC3D output files already exist.
         -----
 	    """	
-        if write == True:
-            self.write_radmc3d(nphot_therm=nphot, **keywords)
+
+        self.write_radmc3d(nphot_therm=nphot, \
+                           write_dens=write_dens, \
+                           write_grid=write_grid, \
+                           write_opac=write_opac, \
+                           write_control=write_control, \
+                           write_star=write_star, \
+                           write_wave=write_wave, \
+                           write_mcmono=write_mcmono, \
+                           write_ext=write_ext, \
+                           **keywords)
+
+        if write_dens == False or write_grid == False or write_control == False or write_opac == False or write_star == False or write_wave == False:
+            print('Some RADMC3D input files will not be created. Will continue... but errors can be raised if one or more required input files are missing.\n')
+
         if run == True:
             self.run_thermal_radmc3d(nphot=nphot, **keywords)
 
@@ -40,8 +60,6 @@ class Model:
             # for istruct in range(len(self.grid.dustdensity)): 
             #     nbspecies += len(self.grid.dustdensity[istruct])
 
-        if write == False:
-            print('RADMC3D input files already present. Will continue.\n')
 
         thermpath='thermal/'    
         
@@ -54,10 +72,19 @@ class Model:
         self.grid.temperature = radmc3d.read.dust_temperature(thermpath) # Gives a list of one numpy array. Will be updated when multiple structures
         self.grid.temperature[0] = np.reshape(self.grid.temperature[0], (nbspecies, nz, ny, nx)) 
 
-        dustmodel = self.grid.dust[0] # represents the first structure. If multiple structures, will not match with self.grid.temperature[0]
-        dustmass = dustmodel.grainmass() # gram
-        sizes = dustmodel.sizes()
-        a = sizes[-1]*1e-4 # cm
+
+        a = []
+        dustmass = []
+  
+        for istruc in range(0, len(self.grid.dust)): # create a loop in order to gather all grain sizes into one single array that will be used to compute the area-weighted temperature Ta.
+            dustmodel = self.grid.dust[istruc] 
+            #dustmass = dustmodel.grainmass() # gram
+            sizes = dustmodel.sizes()
+            #a = sizes[-1]*1e-4 # cm
+            a.append(sizes[-1]*1e-4) # cm
+            dustmass.append(dustmodel.grainmass()) # gram
+        a = np.hstack(a) # in order to get a numpy list of all sizes no matter how many structures there are.
+        dustmass = np.hstack(dustmass)
 
         Ta_num = np.zeros((nz, ny, nx))
         Ta_denum = np.zeros((nz, ny, nx))
@@ -73,15 +100,13 @@ class Model:
             self.run_localfield_radmc3d(nphot_mono=nphot_mono)
 
         thermpath='thermal/'
+        nx, ny, nz, x, y, z  = radmc3d.read.grid(thermpath)
         self.grid.localfield = radmc3d.read.localfield(thermpath)
         nlam = len(self.grid.monolam)
         
-        # #for i in range(len(self.grid.localfield)):
         nbspecies, nr, nt, nph = self.grid.dustdensity[0].shape
-        # nlam = int(len(self.grid.localfield)/(nr*nt))
-        #self.grid.localfield = np.reshape(radmc3d.read.localfield(thermpath), (nlam, n2, n1))
-        self.grid.localfield = np.reshape(self.grid.localfield, (nlam, nph, nt, nr))
-        # #self.grid.localfield.reshape((nlam, n1, n2, n3))
+        self.grid.localfield = np.reshape(self.grid.localfield, (nlam, nz, ny, nx))
+
 
     def run_thermal_radmc3d(self, nphot=1e6, verbose=True, timelimit=7200, \
             nice=None, **keywords):
@@ -92,55 +117,63 @@ class Model:
         radmc3d.run.localfield(nphot_mono=nphot_mono, verbose=verbose, timelimit=timelimit)
 
 
-    def write_radmc3d(self, **keywords):
+    def write_radmc3d(self, write_dens, write_grid, write_opac, write_control, write_star, write_wave, write_mcmono, write_ext, **keywords):
         print('\nWRITING RADMC3D INPUT FILES:')
         print('----------------------------\n')
         #os.system("rm thermal/*.inp")
         if not os.path.exists('thermal'):
             os.makedirs('thermal')
 
-        radmc3d.write.control(**keywords)
+        if write_control==True:
+            radmc3d.write.control(**keywords)
 
-        mstar = []
-        rstar = []
-        xstar = []
-        ystar = []
-        zstar = []
-        tstar = []
+        if write_star==True:
+            mstar = []
+            rstar = []
+            xstar = []
+            ystar = []
+            zstar = []
+            tstar = []
+            for i in range(len(self.grid.stars)):
+                mstar.append(self.grid.stars[i].mass*M_sun)
+                rstar.append(self.grid.stars[i].radius*R_sun)
+                xstar.append(self.grid.stars[i].x*autocm)
+                ystar.append(self.grid.stars[i].y*autocm)
+                zstar.append(self.grid.stars[i].z*autocm)
+                tstar.append(self.grid.stars[i].temperature)
 
-        
-        for i in range(len(self.grid.stars)):
-            mstar.append(self.grid.stars[i].mass*M_sun)
-            rstar.append(self.grid.stars[i].radius*R_sun)
-            xstar.append(self.grid.stars[i].x*autocm)
-            ystar.append(self.grid.stars[i].y*autocm)
-            zstar.append(self.grid.stars[i].z*autocm)
-            tstar.append(self.grid.stars[i].temperature)
+            radmc3d.write.stars(rstar, mstar, self.grid.lam, xstar, ystar, zstar, \
+                    tstar=tstar)
 
-        radmc3d.write.stars(rstar, mstar, self.grid.lam, xstar, ystar, zstar, \
-                tstar=tstar)
+        if write_wave==True:
+            radmc3d.write.wavelength_micron(self.grid.lam)
+        if write_mcmono==True:
+            radmc3d.write.mcmono_wavelength_micron(self.grid.monolam)
 
-        radmc3d.write.wavelength_micron(self.grid.lam)
+        if write_ext==True:
+            if len(self.grid.isrf) != 0:
+                radmc3d.write.external_rad(self.grid.isrf[0])
 
-        radmc3d.write.mcmono_wavelength_micron(self.grid.monolam)
+        if write_grid==True:
+            if self.grid.coordsystem == 'spherical':
+                radmc3d.write.amr_grid(self.grid.w1*autocm, self.grid.w2, self.grid.w3, gridstyle="regular", coordsystem=self.grid.coordsystem)
 
-        if len(self.grid.isrf) != 0:
-            radmc3d.write.external_rad(self.grid.isrf[0])
-        
-        if self.grid.coordsystem == 'spherical':
-            radmc3d.write.amr_grid(self.grid.w1*autocm, self.grid.w2, self.grid.w3, gridstyle="regular", coordsystem=self.grid.coordsystem)
+        if write_dens==True:
+            radmc3d.write.dust_density(self.grid.dustdensity, gridstyle="regular")
 
-        radmc3d.write.dust_density(self.grid.dustdensity)
+        if write_opac==True:
+            dustopac = []
+            filelist = glob.glob('thermal/dustkap*')
+            for files in sorted(filelist):
+                dustopac.append(files)
+            radmc3d.write.dustopac(dustopac)
 
-        dustopac = []
-        filelist = glob.glob('thermal/dustkap*')
-        for files in sorted(filelist):
-            dustopac.append(files)
-        radmc3d.write.dustopac(dustopac)
+        if len(self.grid.accretionheating) > 0:
+            radmc3d.write.accretion_heating(self.grid.w1*autocm, self.grid.w2, self.grid.w3, self.grid.accretionheating[0], gridstyle="regular")
 
     # WRITE NAUTILUS INPUT FILES
     def write_nautilus(self, sizes=np.array([[0.1]]), uv_ref=3400, nH_to_AV_conversion=1.600e+21, rsingle=0.1, dtogas=1e-2, ref_radius=100,\
-                       stop_time=3e6, nb_outputs = 64, static=True, param=True, element=True, abundances=True, \
+                       stop_time=3e6, nb_outputs = 64, temp_gas='dust', static=True, param=True, element=True, abundances=True, \
                        activ_energies=True, surfaces=True, network=True, nmgc=False, single=False, \
                        coupling_temp=True, coupling_av=True, **keywords):
 
@@ -199,6 +232,11 @@ class Model:
             uvflux = nautilus.write.uv_factor(uv_ref, ref_radius, r, self.grid.hg_chem[0][idx]/autocm)
             avnh_fact = nautilus.write.avnh_factor(nH_to_AV_conversion, dtogas, rsingle, self.grid.zchem)
 
+            if temp_gas == 'dust':
+                T_gas = T_dust_single[idx,:]
+            elif temp_gas == 'param':
+                T_gas = self.grid.tgas_chem[0][idx]
+
             if nmgc == False:
                 if param == True:
                     nautilus.write.parameters(path, nb_outputs=nb_outputs, resolution=self.grid.nz_chem, stop_time=stop_time, uv_flux=uvflux, **keywords)
@@ -207,7 +245,7 @@ class Model:
                                     self.grid.zchem, \
                                     self.grid.hg_chem[0][idx]/autocm, \
                                     self.grid.gasdensity_chem[0][idx,:], \
-                                    self.grid.tgas_chem[0][idx], \
+                                    T_gas, \
                                     av_z[idx, :], \
                                     T_dust_single[idx,:], \
                                     self.grid.dustdensity_single_chem[0][idx,:], \
@@ -224,7 +262,7 @@ class Model:
                                     self.grid.zchem, \
                                     self.grid.hg_chem[0][idx]/autocm, \
                                     self.grid.gasdensity_chem[0][idx,:], \
-                                    self.grid.tgas_chem[0][idx], \
+                                    T_gas, \
                                     av_z[idx, :], \
                                     T_dust_single[idx,:], #if nbspecies > 1, the column is not read.\
                                     self.grid.dustdensity_single_chem[0][idx,:], #if nbspecies > 1, the column is not read. \

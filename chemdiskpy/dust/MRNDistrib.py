@@ -1,10 +1,10 @@
 """
 _____________________________________________________________________________________________________________
-file name: DustGen
+file name: MRNDistrib
 @author: Sacha Gavino
-last update: Aug 2021
+last update: May 2022
 language: PYTHON 3.8
-short description:  Creates a dust population.
+short description:  Creates a dust population from MRN.
 _____________________________________________________________________________________________________________
 """
 import numpy as np
@@ -12,7 +12,7 @@ from .. constants.constants import mu, amu
 
 
 
-class DustDistrib:
+class MRNDistrib:
     
         def __init__(self, rsingle=1.000e-01 , amin=5.000e-03, amax=1.000e+03, \
                            nb_sizes=1, d_exp=3.5, rho_m=2.5, dtogas=0.01, cst_norm=7.41e-26, ext_eff=4):

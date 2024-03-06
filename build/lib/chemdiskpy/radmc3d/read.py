@@ -107,10 +107,18 @@ def dust_temperature(path, filename=None, ext=None, binary=False):
                 filename = path + "dust_temperature_"+str(ext)+".dat"
 
     if binary:
-        f = open(filename, "rb")
-        data = np.fromfile(filename)
+        try:
+            f = open(filename, "rb")
+            data = np.fromfile(filename)
+        except IOError:
+            return []
+
     else:
-        f = open(filename,"r")
+        try:
+            f = open(filename,"r")
+        except IOError:
+            return []
+
 
     if binary:
         int.from_bytes(f.read(8), byteorder="little")

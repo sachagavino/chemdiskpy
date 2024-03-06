@@ -11,6 +11,7 @@ def dust_temperature(temp_radmc3d, rchem, zchem, d, theta, hg):
     zz = hhg*zz
     temp_naut = np.ones((nbspecies, len(rchem), len(zchem)))
     temp_naut_smooth = np.ones((nbspecies, len(rchem), len(zchem)))
+    # CONVERSION SPHERICAL TO CARTESIAN
     for size_id in range(nbspecies):
         for idx, r in enumerate(rchem):
             for alt in range(len(zchem)):

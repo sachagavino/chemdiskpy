@@ -59,6 +59,8 @@ class Model:
             # nbspecies = 0
             # for istruct in range(len(self.grid.dustdensity)): 
             #     nbspecies += len(self.grid.dustdensity[istruct])
+        else:
+            print("Dust thermal simulation was not run because the user set 'run=False'. Probably because dust_temperature.dat already exists? Will continue.\n")
 
 
         thermpath='thermal/'    
@@ -69,30 +71,36 @@ class Model:
 
         dust_density[0] = np.reshape(dust_density[0], (nbspecies, nz, ny, nx))
         dust_density[0][dust_density[0]<=1e-100] = 1e-100
-        self.grid.temperature = radmc3d.read.dust_temperature(thermpath) # Gives a list of one numpy array. Will be updated when multiple structures
-        self.grid.temperature[0] = np.reshape(self.grid.temperature[0], (nbspecies, nz, ny, nx)) 
 
+        self.grid.temperature = radmc3d.read.dust_temperature(thermpath)
+        if len(self.grid.temperature) > 0:
+            self.grid.temperature[0] = np.reshape(self.grid.temperature[0], (nbspecies, nz, ny, nx)) 
 
-        a = []
-        dustmass = []
-  
-        for istruc in range(0, len(self.grid.dust)): # create a loop in order to gather all grain sizes into one single array that will be used to compute the area-weighted temperature Ta.
-            dustmodel = self.grid.dust[istruc] 
-            #dustmass = dustmodel.grainmass() # gram
-            sizes = dustmodel.sizes()
-            #a = sizes[-1]*1e-4 # cm
-            a.append(sizes[-1]*1e-4) # cm
-            dustmass.append(dustmodel.grainmass()) # gram
-        a = np.hstack(a) # in order to get a numpy list of all sizes no matter how many structures there are.
-        dustmass = np.hstack(dustmass)
+            if nbspecies > 1:
+                a = []
+                dustmass = []
+        
+                for istruc in range(0, len(self.grid.dust)): # create a loop in order to gather all grain sizes into one single array that will be used to compute the area-weighted temperature Ta.
+                    dustmodel = self.grid.dust[istruc] 
+                    #dustmass = dustmodel.grainmass() # gram
+                    sizes = dustmodel.sizes()
+                    #a = sizes[-1]*1e-4 # cm
+                    a.append(sizes[-1]*1e-4) # cm
+                    dustmass.append(dustmodel.grainmass()) # gram
+                a = np.hstack(a) # in order to get a numpy list of all sizes no matter how many structures there are.
+                dustmass = np.hstack(dustmass)
 
-        Ta_num = np.zeros((nz, ny, nx))
-        Ta_denum = np.zeros((nz, ny, nx))
+                Ta_num = np.zeros((nz, ny, nx))
+                Ta_denum = np.zeros((nz, ny, nx))
 
-        for idx in range(len(a)):
-            Ta_num += self.grid.temperature[0][idx, :, :, :]*(dust_density[0][idx, :, :, :]/dustmass[idx])*a[idx]**2
-            Ta_denum += (dust_density[0][idx, :, :, :]/dustmass[idx])*a[idx]**2
-        self.Ta = Ta_num/Ta_denum  #Ta is the area-weighted dust temperature.
+                for idx in range(len(a)):
+                    Ta_num += self.grid.temperature[0][idx, :, :, :]*(dust_density[0][idx, :, :, :]/dustmass[idx])*a[idx]**2
+                    Ta_denum += (dust_density[0][idx, :, :, :]/dustmass[idx])*a[idx]**2
+                self.Ta = Ta_num/Ta_denum  #Ta is the area-weighted dust temperature.
+            else:
+                self.Ta = self.grid.temperature[0][0,:,:,:]
+        else:
+            print('\nno dust temperature file was found. If coupling_temp is True the chemistry model will not be created.\n\n')
 
 
     def localfield(self, nphot_mono=1e6, run=True):
@@ -104,7 +112,6 @@ class Model:
         self.grid.localfield = radmc3d.read.localfield(thermpath)
         nlam = len(self.grid.monolam)
         
-        nbspecies, nr, nt, nph = self.grid.dustdensity[0].shape
         self.grid.localfield = np.reshape(self.grid.localfield, (nlam, nz, ny, nx))
 
 
@@ -186,13 +193,13 @@ class Model:
         # coupling from RADMC3D output model toward NAUTILUS input model                
         if coupling_temp == True:
             if not self.grid.temperature:
-                print('The file thermal/dust_temperature.dat is not present or is corrupted.')
+                print('coupling_temp==True: The file thermal/dust_temperature.dat is not present or is corrupted. Chemistry model is not created.')
                 sys.exit(1)
             elif self.grid.rchem.size == 0:
-                print('The radii for the chemistry model (rchem) are not set. Please write something like m.grid.set_nautilus_grid(rchem, ...)')
+                print('The radii for the chemistry model (rchem) are not set. Chemistry model is not created. Try again and write something like m.grid.set_nautilus_grid(rchem, ...)')
                 sys.exit(1)
             elif not self.grid.hg_chem:
-                print('You did not define a NAUTILUS model. Please, write something like m.write_nautilus(sizes=sizes, ...).')
+                print('You did not define a chemistry model. Please, write something like m.write_nautilus(sizes=sizes, ...).')
                 sys.exit(1)
             T_dust = nautilus.coupling.dust_temperature(self.grid.temperature[0], self.grid.rchem*autocm, self.grid.zchem, self.grid.r*autocm, self.grid.theta, self.grid.hg_chem[0]) # dim(a, rchem, zchem)
             T_dust_single = nautilus.coupling.dust_temperature_single(self.Ta, self.grid.rchem*autocm, self.grid.zchem, self.grid.r*autocm, self.grid.theta, self.grid.hg_chem[0])
@@ -210,15 +217,15 @@ class Model:
         print('WRITING NAUTILUS INPUT FILES:')
         print('-----------------------------\n')
         # write input NAUTILUS files
-        if nmgc == True:
+        if nmgc == True:  #if nmgc is True, then the code assumes the user will use the NMGC version of Nautilus. This can be true even if the only one grain size exist in the model. 
              print('NMGC: Yes\n')
         else:
-             print('NMGC: No\n')
+             print('NMGC: No\n') #if ngmc is False, the single-grain version of Nautilus is assumed to be used.
 
         if single == True:
-             print('Dust temperatures: area-weigthed\n')
+             print('Dust temperatures: single, area-weigthed.\n')
         else:
-             print('Dust temperatures: independent\n')
+             print('Dust temperatures: multiple dust temperatures (see 1D_grain_sizes.in).\n')
 
         for idx, r in enumerate(self.grid.rchem):
             path = 'chemistry' + '/' + str(r) + 'AU/'
@@ -269,7 +276,6 @@ class Model:
                                     rsingle, #if nbspecies > 1, the column is not read. \
                                     avnh_fact)
                 if nbspecies > 1 and single == False:
-                    #If single==True then 1D_grain_sizes.in is not read, but we create it any way. 
                     nautilus.write.grain_sizes(path, sizes, self.grid.gasdensity_chem[0][idx,:], self.grid.dustdensity_chem[0][:,idx,:], T_dust[:,idx,:])
 
             # if network == True:

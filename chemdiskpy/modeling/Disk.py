@@ -85,13 +85,14 @@ class Disk:
             -R_ref:         reference radius [au]
         """
         h_exp = (3./2.) - (self.q_exp/2.)
-        if self.Tmidplan_ref != None:
+        if self.h0 != None: 
+            hgas = self.h0*autocm*(r/(self.ref_radius))**h_exp
+        elif self.Tmidplan_ref != None:
             h0 = np.sqrt((kb*self.Tmidplan_ref*(self.ref_radius*autocm)**3)/(mu*amu*Ggram*self.star_mass*M_sun))
+            self.h0 = h0/autocm
             #h0 = h0/autocm
             hgas = h0*(r/(self.ref_radius))**h_exp
-        else:
-            if self.h0 != None:
-                hgas = self.h0*autocm*(r/(self.ref_radius))**h_exp
+
         return hgas
 
 
@@ -102,7 +103,7 @@ class Disk:
 	    	-r:                     distance from the star [au]
         """
         if self.sigma_gas_ref != None:
-            sigma_g = 2*self.sigma_gas_ref*(r/(self.ref_radius))**(-self.p_exp)  #2 or not??
+            sigma_g = self.sigma_gas_ref*(r/(self.ref_radius))**(-self.p_exp)  #2 or not??
         else:
             sigma_g = (1/self.dtogas)*self.sigma_d0*(r/(self.ref_radius))**(-self.p_exp)
         return sigma_g
@@ -211,7 +212,7 @@ class Disk:
         ng = self.density(x1, x2, x3)/(mu*amu)            
         return ng
 
-    def viscous_accretion_heating(self, acc_rate, max_h, x1, x2, x3=None):
+    def viscous_accretion_heating(self, acc_rate, lim_h, x1, x2, x3=None):
         """ I)
         Return the viscous accretion heating. Unit: erg.cm^-3.s-1. The density is computed assumging hydrostatic equilibrium.
 
@@ -230,7 +231,7 @@ class Disk:
             hg = self.scaleheight(rr/autocm)
             omega2 = self.omega2(rr/autocm)
             border_max = np.greater_equal(abs(zzmax), abs(zz))*1  # make border at rout
-            border_h = np.greater_equal(abs(max_h*hg), abs(zz))*1 #make border at max_h scale height. 
+            border_h = np.greater_equal(abs(lim_h*hg), abs(zz))*1 #make border at lim_h scale height. 
             border = border_max*border_h
             q_visc = ((3*acc_rate*M_sun*omega2)/(4*np.pi*np.sqrt(2*np.pi)*hg*yrtosec))*np.exp(-(zz[:,:,:]**2)/(2*hg**2))*border
             #q_visc[q_visc==0.0] = 1e-30         
@@ -293,9 +294,11 @@ class Disk:
         if self.settling == True:
             sigma_g = self.surfacedensity(r)
             for a in sizes[-1]:
-                stoptime_mid =(np.sqrt(2*np.pi)*a*1e-4*self.rho_m)/sigma_g
+                #stoptime_mid =(np.sqrt(2*np.pi)*a*1e-4*self.rho_m)/sigma_g
+                stoptime_mid =(np.pi*a*1e-4*self.rho_m)/(2*sigma_g)
                 hd.append(hg/(np.sqrt(1 + stoptime_mid*(self.schmidtnumber/self.alpha))))
-            stoptime_mid_single =(np.sqrt(2*np.pi)*self.dust.rsingle*1e-4*self.rho_m)/sigma_g
+            #stoptime_mid_single =(np.sqrt(2*np.pi)*self.dust.rsingle*1e-4*self.rho_m)/sigma_g
+            stoptime_mid_single =(np.pi*self.dust.rsingle*1e-4*self.rho_m)/(2*sigma_g)
             hd_single = hg/(np.sqrt(1 + stoptime_mid_single*(self.schmidtnumber/self.alpha)))
             return np.array(hd), hd_single
 

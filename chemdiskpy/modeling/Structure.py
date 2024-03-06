@@ -52,8 +52,8 @@ class Structure(Model):
             if add_dustmodel == True:
                 self.grid.add_dust(dust)
 
-    def add_internalheating(self, acc_rate=p.acc_rate, max_h=p.max_h):
-            self.grid.add_accretionheating(self.disk.viscous_accretion_heating(acc_rate, max_h, self.grid.r, self.grid.theta, self.grid.phi))
+    def add_internalheating(self, acc_rate=p.acc_rate, lim_h=p.lim_h):
+            self.grid.add_accretionheating(self.disk.viscous_accretion_heating(acc_rate, lim_h, self.grid.r, self.grid.theta, self.grid.phi))
 
 
     def add_nautilusdisk(self, ref_radius=p.ref_radius, rin=p.rin, rout=p.rout, star_mass=p.star_mass, disk_mass=p.disk_mass, h0=p.h0, \

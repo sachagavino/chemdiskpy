@@ -95,13 +95,14 @@ class Grid:
         self.w2 = w2
         self.w3 = w3
 
-    def set_nautilus_grid(self, r, h_lim=4, nz_chem=64):
+    def set_nautilus_grid(self, r, max_H=4, nz_chem=64):
         #hg = self.disk.scaleheight(np.array(r))
         pts = np.arange(0, nz_chem, 1)
         #zchem = np.ones((len(rchem), nb_points))
 
         #hh, ptpt = np.meshgrid(hchem, pts)
-        z = (1. - (2.*pts/(2.*nz_chem - 1.)))*h_lim#*Hg
+        z = (1. - (2.*pts/(2.*nz_chem - 1.)))*max_H#*Hg
+
         self.rchem = np.array(r)
         self.zchem = z
         self.nz_chem = nz_chem

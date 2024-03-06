@@ -74,7 +74,7 @@ class MRNDistrib:
 
         def massfraction(self):
             """ C)
-            Calculate the mass fraction of each grain population relative to the total dust grains. 
+            Calculate the mass fraction of each grain population relative to the total dust mass of the object following a MRN distribution. 
             Returns
             -------
                 Numpy array. len(array) = (nb_sizes).

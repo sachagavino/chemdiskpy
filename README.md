@@ -2,12 +2,12 @@
 
 
 This code performs dust continuum radiative transfer simulations of protoplanetary disks with RADMC3D and allows to use the resulting dust tempeature and local radiation field for gas-grain simulations (NAUTILUS).
-THe code can convert any relevant RADMC3D input/output files to a NAUTILUS friendly format, and vice-versa. 
+The code can convert any relevant RADMC3D input/output files to a NAUTILUS friendly format, and vice-versa. 
 
 
 ## Installation
 
-- last release from test [https://test.pypi.org/](https://test.pypi.org/):
+- latest release from test [https://test.pypi.org/](https://test.pypi.org/):
 
         pip install -i https://test.pypi.org/simple/ chemdiskpy
 

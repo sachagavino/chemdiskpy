@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: chemdiskpy
-Version: 0.7.5
+Version: 1.0.0
 Summary: Thermal and chemical modeling of multiple grain-sized protoplanetary disks
 Home-page: UNKNOWN
 Author: Sacha Gavino
@@ -17,32 +17,33 @@ License-File: LICENSE
 # chemdiskpy: Couple chemistry modeling with thermal modeling of protoplanetary disks with multiple grain sizes
 
 
-This code is dedicated to help users create dust continuum radiative transfer simulations with RADMC3D and couple the output results to create input parameters for the gas-grain code NAUTILUS for protoplanetary disk models.
-Although it is totally possible to use only one grain size and species, the main purpose of the package is to use multiple grain sizes, both for solving thermal and chemical problems.
+This code performs dust continuum radiative transfer simulations of protoplanetary disks with RADMC3D and allows to use the resulting dust tempeature and local radiation field for gas-grain simulations (NAUTILUS).
+The code can convert any relevant RADMC3D input/output files to a NAUTILUS friendly format, and vice-versa. 
 
 
 ## Installation
 
-- last release from test [https://test.pypi.org/](https://test.pypi.org/):
+- latest release from test [https://test.pypi.org/](https://test.pypi.org/):
 
         pip install -i https://test.pypi.org/simple/ chemdiskpy
 
 
 ## Quick start
 
-### Set up a directory (this step is temporary and will not be required in the next version)
+### Set up a directory 
 1. Create a working folder where you want to create a model and go to this folder.
-2. TEMPORARY: Create manually a folder named **chemistry/** and another **thermal/**. This step is temporary and will be automatic in next version.
-- **chemistry/** is where the NAUTILUS model is stored.
-- **thermal/** is where the thermal model is stored.
-3. In thermal folder, add an opacity table in the format of radmc3d using the script provided. and go back to the working directory.
+2. Add the opacity table in RADM3D format (or use the script provided).
+3. Running a model will automatically create a folder **chemistry/** and **thermal/** 
 
 ## Set up a model
-- All parameters can be written in the file parameters.py in the working directory. See folder **example_simulation/**. 
-- If the user provides all or a few parameters when calling the functions (e.g. if the user calls: **m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)**), then the corresponding values in **parameters.py** are 'bypassed' and not read.
+- All parameters can be written in the file parameters.py in the working directory. See documentation and folder **example_simulation/**. 
+- If the user provides all or a few parameters when calling the functions (e.g. if the user calls: **m.add_star(mass=star_mass, luminosity=1., temperature=4500., x=0., y=0., z=0.)**), then the corresponding values in **parameters.py** are 'bypassed'.
+
+
+## EXAMPLE:
 
 ### IMPORT PACKAGE
-- Open any notebook or script in the working directory.
+- Open any notebook or script in the working directory:
 
 ```
 import chemdiskpy.modeling as modeling
